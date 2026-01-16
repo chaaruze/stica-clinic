@@ -132,7 +132,11 @@ stica-clinic/
 
 ## 🎨 Screenshots
 
-*Coming soon...*
+<img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/cba10e96-8e3b-4ff8-beeb-786936c47e51" />
+<img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/47efd5eb-fc1e-41a2-921c-0de6d7f860cf" />
+<img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/d752d55e-7175-4db3-ac0f-955766120389" />
+<img width="1902" height="906" alt="image" src="https://github.com/user-attachments/assets/8d4d5120-58bc-4895-98f0-cc4023eba6a1" />
+
 
 ---
 
