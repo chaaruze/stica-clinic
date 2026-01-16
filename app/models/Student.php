@@ -83,7 +83,10 @@ class Student
 
     public function addStudentsBatch($rows)
     {
-        $sql = "INSERT INTO `student details` (`student number`, `last name`, `first name`, `middle name`) VALUES (:id, :lname, :fname, :mname)";
+        $sql = "INSERT INTO `student details` 
+        (`student number`, `last name`, `first name`, `middle name`, `age`, `sex`, `phone number`, `course`) 
+        VALUES (:id, :lname, :fname, :mname, :age, :sex, :phone, :course)";
+        
         $this->db->prepare($sql);
 
         foreach ($rows as $row) {
@@ -91,6 +94,10 @@ class Student
             $this->db->bind(':lname', $row['last_name']);
             $this->db->bind(':fname', $row['first_name']);
             $this->db->bind(':mname', $row['middle_name']);
+            $this->db->bind(':age', $row['age'] ?? '');
+            $this->db->bind(':sex', $row['sex'] ?? '');
+            $this->db->bind(':phone', $row['phone_number'] ?? '');
+            $this->db->bind(':course', $row['course'] ?? '');
 
             try {
                 $this->db->execute();

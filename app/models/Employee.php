@@ -84,8 +84,11 @@ class Employee
     // Example import logic
     public function addEmployeesBatch($rows)
     {
-        // This accepts array of rows [id, lname, fname, mname]
-        $sql = "INSERT INTO `employee details` (`employee number`, `last name`, `first name`, `middle name`) VALUES (:id, :lname, :fname, :mname)";
+        // This accepts array of rows [id, lname, fname, mname, age, sex, phone, position]
+        $sql = "INSERT INTO `employee details` 
+        (`employee number`, `last name`, `first name`, `middle name`, `age`, `sex`, `phone number`, `position`) 
+        VALUES (:id, :lname, :fname, :mname, :age, :sex, :phone, :pos)";
+        
         $this->db->prepare($sql);
 
         foreach ($rows as $row) {
@@ -93,6 +96,10 @@ class Employee
             $this->db->bind(':lname', $row['last_name']);
             $this->db->bind(':fname', $row['first_name']);
             $this->db->bind(':mname', $row['middle_name']);
+            $this->db->bind(':age', $row['age'] ?? '');
+            $this->db->bind(':sex', $row['sex'] ?? '');
+            $this->db->bind(':phone', $row['phone_number'] ?? '');
+            $this->db->bind(':pos', $row['position'] ?? '');
 
             try {
                 $this->db->execute();

@@ -194,14 +194,70 @@
                     var workbook = XLSX.read(data, { type: 'array' });
                     var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     var excelRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                    var rowData = excelRows.slice(1).map(row => {
+                    
+                    // Get headers from first row
+                    var headers = excelRows[0] || [];
+                    
+                    // Normalize headers for matching (lowercase, trim)
+                    var normalizedHeaders = headers.map(h => (h || '').toString().toLowerCase().trim());
+                    
+                    // Define possible column name variations for each field
+                    var columnMappings = {
+                        student_number: ['student number', 'student_number', 'studentnumber', 'student no', 'student id', 'id', 'no', 'number'],
+                        last_name: ['last name', 'last_name', 'lastname', 'surname', 'family name'],
+                        first_name: ['first name', 'first_name', 'firstname', 'given name', 'name'],
+                        middle_name: ['middle name', 'middle_name', 'middlename', 'middle'],
+                        age: ['age'],
+                        sex: ['sex', 'gender'],
+                        phone_number: ['phone number', 'phone_number', 'phone', 'contact', 'contact number', 'mobile'],
+                        course: ['course', 'course/year', 'course year', 'program', 'strand', 'section']
+                    };
+                    
+                    // Find column index for each field
+                    function findColumnIndex(possibleNames) {
+                        for (var i = 0; i < normalizedHeaders.length; i++) {
+                            for (var j = 0; j < possibleNames.length; j++) {
+                                if (normalizedHeaders[i] === possibleNames[j] || normalizedHeaders[i].includes(possibleNames[j])) {
+                                    return i;
+                                }
+                            }
+                        }
+                        return -1;
+                    }
+                    
+                    var columnIndices = {
+                        student_number: findColumnIndex(columnMappings.student_number),
+                        last_name: findColumnIndex(columnMappings.last_name),
+                        first_name: findColumnIndex(columnMappings.first_name),
+                        middle_name: findColumnIndex(columnMappings.middle_name),
+                        age: findColumnIndex(columnMappings.age),
+                        sex: findColumnIndex(columnMappings.sex),
+                        phone_number: findColumnIndex(columnMappings.phone_number),
+                        course: findColumnIndex(columnMappings.course)
+                    };
+                    
+                    console.log('Detected columns:', columnIndices);
+                    console.log('Headers found:', headers);
+                    
+                    // Map data rows using detected column indices
+                    var rowData = excelRows.slice(1).filter(row => row.length > 0).map(row => {
                         return {
-                            student_number: row[0] || '',
-                            last_name: row[1] || '',
-                            first_name: row[2] || '',
-                            middle_name: row[3] || '',
+                            student_number: columnIndices.student_number >= 0 ? (row[columnIndices.student_number] || '') : '',
+                            last_name: columnIndices.last_name >= 0 ? (row[columnIndices.last_name] || '') : '',
+                            first_name: columnIndices.first_name >= 0 ? (row[columnIndices.first_name] || '') : '',
+                            middle_name: columnIndices.middle_name >= 0 ? (row[columnIndices.middle_name] || '') : '',
+                            age: columnIndices.age >= 0 ? (row[columnIndices.age] || '') : '',
+                            sex: columnIndices.sex >= 0 ? (row[columnIndices.sex] || '') : '',
+                            phone_number: columnIndices.phone_number >= 0 ? (row[columnIndices.phone_number] || '') : '',
+                            course: columnIndices.course >= 0 ? (row[columnIndices.course] || '') : ''
                         };
                     });
+                    
+                    // Validate required fields
+                    if (columnIndices.student_number < 0) {
+                        alert('Could not find "Student Number" column. Please check your Excel headers.');
+                        return;
+                    }
 
                     $.ajax({
                         url: '<?= URLROOT ?>/students/import',
@@ -210,6 +266,7 @@
                         dataType: 'json',
                         success: function (response) {
                             if (response.status === 'success') {
+                                alert('Import successful! ' + rowData.length + ' records processed.');
                                 location.reload();
                             } else {
                                 alert('Failed to import.');
