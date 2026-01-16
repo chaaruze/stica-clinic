@@ -145,7 +145,7 @@
                             Remember me
                         </label>
                     </div>
-                    <!-- <a href="#" class="small text-decoration-none" style="color: var(--sti-blue);">Forgot Password?</a> -->
+                    <a href="<?= URLROOT ?>/home/forgot_password" class="small text-decoration-none" style="color: var(--sti-blue);">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-login shadow-sm">LOG IN</button>

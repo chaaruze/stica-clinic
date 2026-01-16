@@ -117,6 +117,16 @@
                     <span class="invalid-feedback d-block"><?php echo $data['name_err']; ?></span>
                 </div>
 
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-envelope text-muted"></i></span>
+                        <input type="email" name="email" class="form-control border-start-0 ps-0 <?php echo (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['email'] ?? ''; ?>" placeholder="Enter your email">
+                    </div>
+                    <span class="invalid-feedback d-block"><?php echo $data['email_err'] ?? ''; ?></span>
+                </div>
+
                 <!-- Username Field -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Username</label>

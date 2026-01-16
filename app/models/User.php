@@ -79,9 +79,10 @@ class User
 
     public function register($data)
     {
-        $this->db->query('INSERT INTO nurses (name, username, password) VALUES (:name, :username, :password)');
+        $this->db->query('INSERT INTO nurses (name, email, username, password) VALUES (:name, :email, :username, :password)');
         // Bind values
         $this->db->bind(':name', $data['name']);
+        $this->db->bind(':email', $data['email']);
         $this->db->bind(':username', $data['username']);
         $this->db->bind(':password', $data['password']);
 
@@ -91,5 +92,69 @@ class User
         } else {
             return false;
         }
+    }
+
+    // Update password (for Change Password & Reset Password)
+    public function updatePassword($id, $newPasswordHash)
+    {
+        $this->db->query('UPDATE nurses SET password = :password WHERE id = :id');
+        $this->db->bind(':password', $newPasswordHash);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    // Find user by email (for Forgot Password)
+    public function findUserByEmail($email)
+    {
+        $this->db->query('SELECT * FROM nurses WHERE email = :email');
+        $this->db->bind(':email', $email);
+        $row = $this->db->single();
+
+        if ($this->db->rowCount() > 0) {
+            return $row;
+        } else {
+            return false;
+        }
+    }
+
+    // Set reset token
+    public function setResetToken($email, $token)
+    {
+        // Hash token for security
+        $token_hash = hash('sha256', $token);
+        // Expiry 30 minutes from now
+        $expiry = date('Y-m-d H:i:s', time() + 60 * 30);
+
+        $this->db->query('UPDATE nurses SET reset_token_hash = :hash, reset_token_expires_at = :expiry WHERE email = :email');
+        $this->db->bind(':hash', $token_hash);
+        $this->db->bind(':expiry', $expiry);
+        $this->db->bind(':email', $email);
+
+        return $this->db->execute();
+    }
+
+    // Verify reset token
+    public function verifyResetToken($token)
+    {
+        $token_hash = hash('sha256', $token);
+
+        $this->db->query('SELECT * FROM nurses WHERE reset_token_hash = :hash AND reset_token_expires_at > NOW()');
+        $this->db->bind(':hash', $token_hash);
+        
+        $row = $this->db->single();
+
+        if ($row) {
+            return $row;
+        } else {
+            return false;
+        }
+    }
+
+    // Clear reset token
+    public function clearResetToken($id)
+    {
+        $this->db->query('UPDATE nurses SET reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
     }
 }

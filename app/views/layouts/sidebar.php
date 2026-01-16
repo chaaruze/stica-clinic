@@ -44,6 +44,8 @@
             <a class="nav-link custom-nav-link" href="<?= URLROOT ?>/employees"><i
                     class="fas fa-users"></i>Employees</a>
             <!-- Backup link removed -->
+             <a class="nav-link custom-nav-link" href="<?= URLROOT ?>/users/change_password"><i
+                    class="fas fa-key"></i>Change Password</a>
         </nav>
 
         <div class="mt-auto">
