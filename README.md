@@ -89,6 +89,9 @@ A modern, responsive web-based clinic management system built for STI College Al
    ```
    http://localhost/stica-clinic
    ```
+   
+   **Or use the Auto-Launcher:**
+   - Double-click `LAUNCH_APP.bat` in the project folder to start XAMPP and open the browser automatically.
 
 ---
 
