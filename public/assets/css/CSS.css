@@ -1,0 +1,160 @@
+:root {
+  --sti-blue: #0072BC;
+  --sti-yellow: #FFF200;
+  --sti-dark-blue: #005a9e;
+  --text-dark: #353535;
+  --bg-light: #f8f9fa;
+  --white: #ffffff;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  list-style: none;
+  box-sizing: border-box;
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Schibsted Grotesk", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--text-dark);
+}
+
+body {
+  background-color: var(--bg-light);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--sti-blue) !important;
+  border-color: var(--sti-blue) !important;
+  color: var(--white) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--sti-dark-blue) !important;
+  border-color: var(--sti-dark-blue) !important;
+}
+
+/* Navbar */
+.navbar-custom {
+  background-color: var(--sti-blue) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-custom .nav-link {
+  color: var(--white) !important;
+}
+
+/* Sidebar */
+.offcanvas {
+  background-color: var(--sti-blue) !important;
+  color: var(--white) !important;
+}
+
+.offcanvas .card {
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Translucent white for contrast */
+}
+
+.custom-nav-link {
+  color: var(--white) !important;
+  background-color: transparent;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 5px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-nav-link:hover {
+  background-color: var(--sti-yellow);
+  color: var(--sti-blue) !important;
+  font-weight: bold;
+}
+
+.custom-nav-link i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  background-color: var(--white);
+  margin-bottom: 20px;
+}
+
+.card-header {
+  background-color: var(--sti-blue);
+  color: var(--white);
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  padding: 15px;
+}
+
+.card-header h5,
+.card-header h2 {
+  color: var(--white);
+  margin: 0;
+}
+
+/* Tables */
+table th {
+  background-color: var(--sti-blue) !important;
+  color: var(--white) !important;
+  font-weight: 600;
+}
+
+.table-hover tbody tr:hover td {
+  background-color: #e6f3fa;
+  /* Light blue tint */
+}
+
+/* Forms */
+input,
+textarea,
+.form-control {
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  padding: 10px;
+}
+
+input:focus,
+textarea:focus,
+.form-control:focus {
+  border-color: var(--sti-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+}
+
+/* Utilities */
+.text-sti-blue {
+  color: var(--sti-blue);
+}
+
+.bg-sti-blue {
+  background-color: var(--sti-blue);
+}
+
+.text-sti-yellow {
+  color: var(--sti-yellow);
+}
+
+.bg-sti-yellow {
+  background-color: var(--sti-yellow);
+}
