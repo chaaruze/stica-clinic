@@ -69,4 +69,27 @@ class User
         $this->db->bind(':expires_at', $expires_at);
         return $this->db->execute();
     }
+
+    public function getUserCount()
+    {
+        $this->db->query('SELECT COUNT(*) as count FROM nurses');
+        $row = $this->db->single();
+        return $row ? $row->count : 0;
+    }
+
+    public function register($data)
+    {
+        $this->db->query('INSERT INTO nurses (name, username, password) VALUES (:name, :username, :password)');
+        // Bind values
+        $this->db->bind(':name', $data['name']);
+        $this->db->bind(':username', $data['username']);
+        $this->db->bind(':password', $data['password']);
+
+        // Execute
+        if ($this->db->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
