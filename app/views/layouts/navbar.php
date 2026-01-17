@@ -28,8 +28,28 @@
             <div class="navbar-logo-circle">
                 <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Logo">
             </div>
-            <span class="fw-bold text-white d-none d-md-block" style="font-family: 'Schibsted Grotesk', sans-serif;">STICA
-                Clinic</span>
+            <span class="fw-bold text-white d-none d-md-block" style="font-family: 'Schibsted Grotesk', sans-serif;">STICA Clinic</span>
+            
+            <!-- Navbar Breadcrumb Trail -->
+            <div class="d-none d-md-flex align-items-center ms-3 ps-3 border-start border-secondary">
+                <a href="<?= URLROOT ?>/dashboard" class="text-white-50 text-decoration-none small">Home</a>
+                <?php
+                $current_url = $_SERVER['REQUEST_URI'];
+                if (strpos($current_url, 'change_password') !== false) {
+                    echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Change Password</span>';
+                } elseif (strpos($current_url, 'students') !== false && strpos($current_url, 'details') !== false) {
+                     echo '<span class="text-white-50 mx-2">/</span><a href="'.URLROOT.'/students" class="text-white-50 text-decoration-none small">Students</a>';
+                     echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Details</span>';
+                } elseif (strpos($current_url, 'students') !== false) {
+                    echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Students</span>';
+                } elseif (strpos($current_url, 'employees') !== false && strpos($current_url, 'details') !== false) {
+                     echo '<span class="text-white-50 mx-2">/</span><a href="'.URLROOT.'/employees" class="text-white-50 text-decoration-none small">Employees</a>';
+                     echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Details</span>';
+                } elseif (strpos($current_url, 'employees') !== false) {
+                    echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Employees</span>';
+                }
+                ?>
+            </div>
         </div>
 
         <div class="collapse navbar-collapse d-flex align-items-center justify-content-end" id="navbarSupportedContent">

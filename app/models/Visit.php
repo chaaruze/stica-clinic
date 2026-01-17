@@ -203,4 +203,30 @@ class Visit
 
         return $this->db->execute();
     }
+
+
+    public function deleteVisits($type, $id, $visits)
+    {
+        $table = ($type == 'Student') ? 'student history' : 'employee history';
+        $col = strtolower($type) . ' number';
+
+        // Prepare statement for multiple deletes
+        // We delete one by one or construct a large query. One by one is safer for composite keys.
+        $sql = "DELETE FROM `$table` WHERE `$col` = :id AND `date visit` = :date AND `time visit` = :time";
+        
+        $this->db->prepare($sql);
+
+        foreach ($visits as $visit) {
+            $this->db->bind(':id', $id);
+            $this->db->bind(':date', $visit['date']);
+            $this->db->bind(':time', $visit['time']);
+            
+            try {
+                $this->db->execute();
+            } catch (Exception $e) {
+                // Continue or log error
+            }
+        }
+        return true;
+    }
 }

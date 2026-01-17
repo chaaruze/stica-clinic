@@ -138,16 +138,19 @@ class User
     {
         $token_hash = hash('sha256', $token);
 
-        $this->db->query('SELECT * FROM nurses WHERE reset_token_hash = :hash AND reset_token_expires_at > NOW()');
+        $this->db->query('SELECT * FROM nurses WHERE reset_token_hash = :hash');
         $this->db->bind(':hash', $token_hash);
         
         $row = $this->db->single();
 
         if ($row) {
-            return $row;
-        } else {
-            return false;
+            // Check expiry in PHP to avoid DB/PHP timezone mismatch
+            if (strtotime($row->reset_token_expires_at) > time()) {
+                return $row;
+            }
         }
+        
+        return false;
     }
 
     // Clear reset token

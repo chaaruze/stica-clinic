@@ -59,9 +59,28 @@
             background-color: rgba(0, 114, 188, 0.5);
         }
 
-        .form-control:focus {
+        /* Custom Input Group Styling */
+        .custom-input-group {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .custom-input-group:focus-within {
             border-color: var(--sti-blue);
             box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+        }
+
+        .custom-input-group .input-group-text {
+            border: none;
+            background-color: transparent;
+        }
+
+        .custom-input-group .form-control {
+            border: none;
+            box-shadow: none;
         }
 
         .btn-login {
@@ -84,11 +103,9 @@
                 flex-direction: column;
                 max-width: 400px;
             }
-
             .login-right {
                 display: none;
             }
-
             .login-left {
                 padding: 30px;
             }
@@ -110,9 +127,9 @@
                 <!-- Name Field -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Full Name</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-id-card text-muted"></i></span>
-                        <input type="text" name="name" class="form-control border-start-0 ps-0 <?php echo (!empty($data['name_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['name']; ?>" placeholder="Enter your full name">
+                    <div class="custom-input-group bg-light">
+                        <span class="input-group-text"><i class="bx bx-id-card text-muted"></i></span>
+                        <input type="text" name="name" class="form-control bg-transparent <?php echo (!empty($data['name_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['name']; ?>" placeholder="Enter your full name">
                     </div>
                     <span class="invalid-feedback d-block"><?php echo $data['name_err']; ?></span>
                 </div>
@@ -120,9 +137,9 @@
                 <!-- Email Field -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Email Address</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-envelope text-muted"></i></span>
-                        <input type="email" name="email" class="form-control border-start-0 ps-0 <?php echo (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['email'] ?? ''; ?>" placeholder="Enter your email">
+                    <div class="custom-input-group bg-light">
+                        <span class="input-group-text"><i class="bx bx-envelope text-muted"></i></span>
+                        <input type="email" name="email" class="form-control bg-transparent <?php echo (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['email'] ?? ''; ?>" placeholder="Enter your email">
                     </div>
                     <span class="invalid-feedback d-block"><?php echo $data['email_err'] ?? ''; ?></span>
                 </div>
@@ -130,9 +147,9 @@
                 <!-- Username Field -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Username</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-user text-muted"></i></span>
-                        <input type="text" name="username" class="form-control border-start-0 ps-0 <?php echo (!empty($data['username_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['username']; ?>" placeholder="Choose a username">
+                    <div class="custom-input-group bg-light">
+                        <span class="input-group-text"><i class="bx bx-user text-muted"></i></span>
+                        <input type="text" name="username" class="form-control bg-transparent <?php echo (!empty($data['username_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['username']; ?>" placeholder="Choose a username">
                     </div>
                     <span class="invalid-feedback d-block"><?php echo $data['username_err']; ?></span>
                 </div>
@@ -140,9 +157,9 @@
                 <!-- Password Field -->
                 <div class="mb-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-lock-alt text-muted"></i></span>
-                        <input type="password" name="password" class="form-control border-start-0 ps-0 <?php echo (!empty($data['password_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['password']; ?>" placeholder="Create a password">
+                    <div class="custom-input-group bg-light">
+                        <span class="input-group-text"><i class="bx bx-lock-alt text-muted"></i></span>
+                        <input type="password" name="password" class="form-control bg-transparent <?php echo (!empty($data['password_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['password']; ?>" placeholder="Create a password">
                     </div>
                     <span class="invalid-feedback d-block"><?php echo $data['password_err']; ?></span>
                 </div>
@@ -150,9 +167,9 @@
                 <!-- Confirm Password Field -->
                 <div class="mb-4">
                     <label class="form-label fw-bold small text-uppercase text-muted">Confirm Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bx bx-lock-alt text-muted"></i></span>
-                        <input type="password" name="confirm_password" class="form-control border-start-0 ps-0 <?php echo (!empty($data['confirm_password_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['confirm_password']; ?>" placeholder="Confirm your password">
+                    <div class="custom-input-group bg-light">
+                        <span class="input-group-text"><i class="bx bx-lock-alt text-muted"></i></span>
+                        <input type="password" name="confirm_password" class="form-control bg-transparent <?php echo (!empty($data['confirm_password_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['confirm_password']; ?>" placeholder="Confirm your password">
                     </div>
                     <span class="invalid-feedback d-block"><?php echo $data['confirm_password_err']; ?></span>
                 </div>

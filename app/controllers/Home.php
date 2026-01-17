@@ -211,6 +211,63 @@ class Home extends Controller
         header('location: ' . URLROOT . '/home/login');
     }
 
+    // Forgot Username
+    public function forgot_username()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            $data = [
+                'email' => trim($_POST['email']),
+                'email_err' => ''
+            ];
+
+            // Validate Email
+            if (empty($data['email'])) {
+                $data['email_err'] = 'Please enter email';
+            } else {
+                $user = $this->userModel->findUserByEmail($data['email']);
+                if (!$user) {
+                    $data['email_err'] = 'No account found with this email';
+                }
+            }
+
+            if (empty($data['email_err'])) {
+                $user = $this->userModel->findUserByEmail($data['email']);
+                
+                // Send Email
+                $subject = "Your Username - STICA Clinic";
+                $message = "
+                    <h3>Forgot Username?</h3>
+                    <p>You requested to retrieve your username for the STICA Clinic system.</p>
+                    <p>Your username is: <strong>" . $user->username . "</strong></p>
+                    <p>You can now login using this username.</p>
+                    <p><a href='" . URLROOT . "/home/login'>Go to Login</a></p>
+                ";
+                
+                require_once APPROOT . '/libraries/Mail.php';
+                if (Mail::send($data['email'], $subject, $message)) {
+                    // Set session for Toast
+                    $_SESSION['login_msg'] = 'Username sent to your email!';
+                    $_SESSION['login_icon'] = 'success';
+                    redirect('home/login');
+                } else {
+                     flash('login_msg', 'Something went wrong sending email.', 'alert alert-danger');
+                     redirect('home/login');
+                }
+            } else {
+                $this->view('home/forgot_username', $data);
+            }
+
+        } else {
+            $data = [
+                'email' => '',
+                'email_err' => ''
+            ];
+            $this->view('home/forgot_username', $data);
+        }
+    }
+
     // Forgot Password
     public function forgot_password()
     {
@@ -236,19 +293,36 @@ class Home extends Controller
                 
                 // Save token
                 if ($this->userModel->setResetToken($data['email'], $token)) {
-                    // Send Email (Simulated)
+                    // Send Email
                     $resetLink = URLROOT . "/home/reset_password?token=" . $token;
-                    $subject = "Reset Your Password";
-                    $message = "Please click the following link to reset your password: " . $resetLink;
+                    $subject = "Reset Your Password - STICA Clinic";
+                    $message = "
+                        <h3>Password Reset Request</h3>
+                        <p>We received a request to reset your password for the STICA Clinic system.</p>
+                        <p>Click the link below to verify it's you and set a new password:</p>
+                        <p><a href='" . $resetLink . "'>" . $resetLink . "</a></p>
+                        <p>If you didn't request this, you can safely ignore this email.</p>
+                        <p><small>Link expires in 30 minutes.</small></p>
+                    ";
                     
-                    // In a real app, use mail() or PHPMailer
-                    // For now, save to file
-                    $logFile = 'email_log.txt';
-                    $logMessage = "[" . date('Y-m-d H:i:s') . "] To: " . $data['email'] . "\nSubject: " . $subject . "\nMessage: " . $message . "\n\n------------------------\n\n";
-                    file_put_contents($logFile, $logMessage, FILE_APPEND);
-
-                    flash('login_msg', 'Reset link sent! Check email_log.txt in project root.');
-                    redirect('home/login');
+                    // Use Mail Helper
+                    require_once APPROOT . '/libraries/Mail.php';
+                    if (Mail::send($data['email'], $subject, $message)) {
+                        // Use SweetAlert Toast
+                        $_SESSION['login_msg'] = 'Reset link sent to your email.';
+                        $_SESSION['login_icon'] = 'success';
+                        redirect('home/login');
+                    } else {
+                         // Fallback
+                         $_SESSION['login_msg'] = 'Error sending email. Check logs.';
+                         $_SESSION['login_icon'] = 'warning';
+                         // Log locally anyway for fallback
+                         $logFile = 'email_log.txt';
+                         $logMessage = "[" . date('Y-m-d H:i:s') . "] To: " . $data['email'] . "\nSubject: " . $subject . "\nLink: " . $resetLink . "\n\n";
+                         file_put_contents($logFile, $logMessage, FILE_APPEND);
+                         
+                         redirect('home/login');
+                    }
                 } else {
                     die('Something went wrong');
                 }

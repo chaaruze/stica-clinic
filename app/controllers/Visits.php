@@ -65,4 +65,26 @@ class Visits extends Controller
 
         $this->view('visits/details', $data);
     }
+    public function delete_history()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+
+            $id = $data['id'] ?? '';
+            $type = $data['type'] ?? '';
+            $visits = $data['visits'] ?? []; // Array of {date: '', time: ''}
+
+            if (!empty($id) && !empty($type) && !empty($visits)) {
+                $visitModel = $this->model('Visit');
+                if ($visitModel->deleteVisits($type, $id, $visits)) {
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error']);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid data']);
+            }
+        }
+    }
 }

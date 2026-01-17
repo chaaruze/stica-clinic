@@ -64,17 +64,27 @@
                 <div class="card-header bg-sti-blue text-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Clinic Visit History
                     </h5>
-                    <button class="btn btn-sm btn-warning"
-                        onclick="window.open('<?= URLROOT ?>/visits/active/Employee/<?= $data['employee']->{'employee number'} ?>', '_blank')">
-                        <i class="fas fa-plus me-1"></i>Add Record
-                    </button>
+                    <div>
+                        <button class="btn btn-sm btn-danger me-2 d-none" id="deleteSelectedBtn" onclick="deleteSelectedHistory()">
+                            <i class="fas fa-trash me-1"></i>Delete Selected (<span id="selectedCount">0</span>)
+                        </button>
+                        <button class="btn btn-sm btn-warning"
+                            onclick="window.open('<?= URLROOT ?>/visits/active/Employee/<?= $data['employee']->{'employee number'} ?>', '_blank')">
+                            <i class="fas fa-plus me-1"></i>Add Record
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0" id="historyTable">
                             <thead class="bg-light text-secondary">
                                 <tr>
-                                    <th class="ps-4">Date</th>
+                                    <th class="ps-4" style="width: 40px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllHistory">
+                                        </div>
+                                    </th>
+                                    <th>Date</th>
                                     <th>Time</th>
                                     <th>Reason / Diagnosis</th>
                                     <th>Treatment</th>
@@ -83,25 +93,31 @@
                             <tbody>
                                 <?php if (!empty($data['history'])): ?>
                                     <?php foreach ($data['history'] as $visit): ?>
-                                        <tr style="cursor: pointer;"
-                                            onclick="window.open('<?= URLROOT ?>/visits/details/Employee/<?= $data['employee']->{'employee number'} ?>?date=<?= $visit->{'date visit'} ?>&time=<?= $visit->{'time visit'} ?>', '_blank')">
-                                            <td class="ps-4 fw-bold text-sti-blue">
+                                        <tr style="cursor: pointer;">
+                                            <td class="ps-4" onclick="event.stopPropagation()">
+                                                <div class="form-check">
+                                                    <input class="form-check-input history-checkbox" type="checkbox" 
+                                                           value="<?= $visit->{'date visit'} ?>|<?= $visit->{'time visit'} ?>">
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold text-sti-blue"
+                                                onclick="window.open('<?= URLROOT ?>/visits/details/Employee/<?= $data['employee']->{'employee number'} ?>?date=<?= $visit->{'date visit'} ?>&time=<?= $visit->{'time visit'} ?>', '_blank')">
                                                 <?= date('M d, Y', strtotime($visit->{'date visit'})) ?>
                                             </td>
-                                            <td>
+                                            <td onclick="window.open('<?= URLROOT ?>/visits/details/Employee/<?= $data['employee']->{'employee number'} ?>?date=<?= $visit->{'date visit'} ?>&time=<?= $visit->{'time visit'} ?>', '_blank')">
                                                 <?= date('h:i A', strtotime($visit->{'time visit'})) ?>
                                             </td>
-                                            <td>
+                                            <td onclick="window.open('<?= URLROOT ?>/visits/details/Employee/<?= $data['employee']->{'employee number'} ?>?date=<?= $visit->{'date visit'} ?>&time=<?= $visit->{'time visit'} ?>', '_blank')">
                                                 <?= $visit->{'reason / diagnosis'} ?? 'N/A' ?>
                                             </td>
-                                            <td>
+                                            <td onclick="window.open('<?= URLROOT ?>/visits/details/Employee/<?= $data['employee']->{'employee number'} ?>?date=<?= $visit->{'date visit'} ?>&time=<?= $visit->{'time visit'} ?>', '_blank')">
                                                 <?= $visit->treatment ?? 'N/A' ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">
+                                        <td colspan="5" class="text-center py-5 text-muted">
                                             <i class="fas fa-folder-open fa-2x mb-3 opacity-50"></i><br>
                                             No visit history found.
                                         </td>
@@ -181,25 +197,105 @@
 </div>
 
 <script>
-    document.getElementById('editEmployeeForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const newEmployeeNumber = formData.get('employee_number');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Edit Employee Form Handler (Existing)
+        const editForm = document.getElementById('editEmployeeForm');
+        if(editForm) {
+            editForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const newEmployeeNumber = formData.get('employee_number');
 
-        fetch('<?= URLROOT ?>/employees/update', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Redirect to the new employee number URL in case it was changed
-                    window.location.href = '<?= URLROOT ?>/employees/details/' + newEmployeeNumber;
-                } else {
-                    alert('Error updating profile');
-                }
+                fetch('<?= URLROOT ?>/employees/update', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Redirect to the new employee number URL in case it was changed
+                            window.location.href = '<?= URLROOT ?>/employees/details/' + newEmployeeNumber;
+                        } else {
+                            alert('Error updating profile');
+                        }
+                    });
             });
+        }
+
+        // History Checkbox Logic
+        const selectAllHistory = document.getElementById('selectAllHistory');
+        const historyCheckboxes = document.querySelectorAll('.history-checkbox');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        const selectedCountSpan = document.getElementById('selectedCount');
+
+        if(deleteSelectedBtn && selectedCountSpan) {
+            function updateDeleteButton() {
+                const checkedCount = document.querySelectorAll('.history-checkbox:checked').length;
+                selectedCountSpan.textContent = checkedCount;
+                if (checkedCount > 0) {
+                    deleteSelectedBtn.classList.remove('d-none');
+                } else {
+                    deleteSelectedBtn.classList.add('d-none');
+                }
+            }
+
+            if(selectAllHistory) {
+                selectAllHistory.addEventListener('change', function() {
+                    historyCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                    updateDeleteButton();
+                });
+            }
+
+            historyCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateDeleteButton();
+                    // Update Select All state
+                    if(selectAllHistory) {
+                        selectAllHistory.checked = document.querySelectorAll('.history-checkbox:checked').length === historyCheckboxes.length;
+                    }
+                });
+            });
+        }
     });
+
+    function deleteSelectedHistory() {
+        if(!confirm('Are you sure you want to delete the selected history records? This cannot be undone.')) return;
+
+        const selected = [];
+        document.querySelectorAll('.history-checkbox:checked').forEach(cb => {
+            const parts = cb.value.split('|');
+            selected.push({
+                date: parts[0],
+                time: parts[1]
+            });
+        });
+
+        if(selected.length === 0) return;
+
+        fetch('<?= URLROOT ?>/visits/delete_history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: '<?= $data['employee']->{'employee number'} ?>',
+                type: 'Employee',
+                visits: selected
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                alert('Records deleted successfully');
+                window.location.reload();
+            } else {
+                alert('Error deleting records');
+            }
+        })
+        .catch(err => console.error(err));
+    }
 </script>
 
 <?php require APPROOT . '/views/layouts/footer.php'; ?>
