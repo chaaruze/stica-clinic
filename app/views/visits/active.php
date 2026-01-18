@@ -27,26 +27,38 @@
                         <!-- Patient Info Card -->
                         <div class="col-md-4">
                             <div class="card border-0 shadow-sm h-100">
-                                    <?php endif; ?>
+                                <div class="card-body position-relative">
+                                    <!-- Watermark Logo -->
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
+                                        <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 250px; filter: grayscale(100%);">
+                                    </div>
 
-                                    <h5 class="fw-bold text-dark mt-2">
-                                        <?= $data['user']->{'last name'} . ', ' . $data['user']->{'first name'} ?>
-                                    </h5>
-                                    <p class="text-muted mb-4">
-                                        <?= $data['type'] ?> ID:
-                                        <?= ($data['type'] == 'Student') ? $data['user']->{'student number'} : $data['user']->{'employee number'} ?>
-                                    </p>
+                                    <div style="position: relative; z-index: 1;" class="text-center pt-5">
+                                        <?php if ($data['type'] == 'Student'): ?>
+                                            <i class="fas fa-user-graduate fa-5x text-secondary mb-3"></i>
+                                        <?php else: ?>
+                                            <i class="fas fa-user-tie fa-5x text-secondary mb-3"></i>
+                                        <?php endif; ?>
 
-                                    <div class="text-start px-3">
-                                        <div class="mb-2"><small class="text-muted d-block">Time In</small>
-                                            <span class="fw-bold text-sti-blue fs-5">
-                                                <?= date('h:i A', strtotime($data['visit']->{'time visit'})) ?>
-                                            </span>
-                                        </div>
-                                        <div><small class="text-muted d-block">Date</small>
-                                            <span class="fw-bold">
-                                                <?= date('M d, Y', strtotime($data['visit']->{'date visit'})) ?>
-                                            </span>
+                                        <h5 class="fw-bold text-dark mt-2">
+                                            <?= $data['user']->{'last name'} . ', ' . $data['user']->{'first name'} ?>
+                                        </h5>
+                                        <p class="text-muted mb-4">
+                                            <?= $data['type'] ?> ID:
+                                            <?= ($data['type'] == 'Student') ? $data['user']->{'student number'} : $data['user']->{'employee number'} ?>
+                                        </p>
+
+                                        <div class="text-start px-3">
+                                            <div class="mb-2"><small class="text-muted d-block">Time In</small>
+                                                <span class="fw-bold text-sti-blue fs-5">
+                                                    <?= date('h:i A', strtotime($data['visit']->{'time visit'})) ?>
+                                                </span>
+                                            </div>
+                                            <div><small class="text-muted d-block">Date</small>
+                                                <span class="fw-bold">
+                                                    <?= date('M d, Y', strtotime($data['visit']->{'date visit'})) ?>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

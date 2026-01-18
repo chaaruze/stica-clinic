@@ -30,8 +30,8 @@ class Employee
         $this->db->bind(':mname', $data['middle_name']);
         $this->db->bind(':birthdate', $data['birthdate'] ?: null);
         $this->db->bind(':sex', $data['sex'] ?: null);
-        $this->db->bind(':phone', $data['phone_number'] ?: null);
-        $this->db->bind(':position', $data['position'] ?: null);
+        $this->db->bind(':phone', $data['phone_number']);
+        $this->db->bind(':position', $data['position']);
 
         if ($this->db->execute()) {
             return true;
@@ -65,8 +65,8 @@ class Employee
         $this->db->bind(':mname', $data['middle_name'] ?? '');
         $this->db->bind(':birthdate', $data['birthdate'] ?: null);
         $this->db->bind(':sex', $data['sex'] ?: null);
-        $this->db->bind(':phone', $data['phone_number'] ?: null);
-        $this->db->bind(':position', $data['position'] ?: null);
+        $this->db->bind(':phone', $data['phone_number']);
+        $this->db->bind(':position', $data['position']);
 
         if ($this->db->execute()) {
             // If ID changed, also update all history records

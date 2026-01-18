@@ -61,9 +61,9 @@
     </div>
 
     <div class="card shadow-sm">
-        <div class="card-body position-relative">
+        <div class="card-body position-relative" style="min-height: 500px;">
             <!-- Watermark Logo -->
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
+            <div style="position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
                 <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 400px; filter: grayscale(100%);">
             </div>
         

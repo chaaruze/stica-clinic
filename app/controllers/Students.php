@@ -32,7 +32,7 @@ class Students extends Controller
                 'last_name' => trim($_POST['last_name']),
                 'first_name' => trim($_POST['first_name']),
                 'middle_name' => trim($_POST['middle_name']),
-                'age' => trim($_POST['age'] ?? ''),
+                'birthdate' => trim($_POST['birthdate'] ?? ''),
                 'sex' => trim($_POST['sex'] ?? ''),
                 'phone_number' => trim($_POST['phone_number'] ?? ''),
                 'course' => trim($_POST['course'] ?? '')
