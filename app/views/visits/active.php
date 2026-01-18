@@ -27,11 +27,6 @@
                         <!-- Patient Info Card -->
                         <div class="col-md-4">
                             <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body text-center pt-5">
-                                    <?php if ($data['type'] == 'Student'): ?>
-                                        <i class="fas fa-user-graduate fa-5x text-secondary mb-3"></i>
-                                    <?php else: ?>
-                                        <i class="fas fa-user-tie fa-5x text-secondary mb-3"></i>
                                     <?php endif; ?>
 
                                     <h5 class="fw-bold text-dark mt-2">
@@ -127,7 +122,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> <!-- Checking end of row div -->
+                    </div> <!-- Closing position-relative wrapper -->
                 </form>
             </div>
         </div>

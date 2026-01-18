@@ -291,8 +291,14 @@
                     </button>
                 </div>
 
-                <div class="card-body p-0 activity-list">
-                    <?php if (!empty($data['recentVisits'])): ?>
+                <div class="card-body p-0 activity-list position-relative">
+                    <!-- Watermark Logo -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.25; z-index: 0; pointer-events: none;">
+                        <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 200px; filter: grayscale(100%);">
+                    </div>
+
+                    <div style="position: relative; z-index: 1;">
+                        <?php if (!empty($data['recentVisits'])): ?>
                         <?php foreach ($data['recentVisits'] as $visit): ?>
                             <div class="p-3 border-bottom activity-item <?= strtolower($visit->type) ?>"
                                 style="cursor: pointer;"
@@ -331,6 +337,7 @@
                             No recent activity found.
                         </div>
                     <?php endif; ?>
+                    </div>
                 </div>
                 <div class="card-footer bg-white text-center">
                     <a href="<?= URLROOT ?>/students" class="small text-decoration-none me-3">View Students</a>

@@ -39,12 +39,18 @@
 </style>
 
 <div class="container">
-    <div class="visit-receipt">
-        <div class="text-center mb-5">
-            <img src="<?= URLROOT ?>/assets/images/logo.png" alt="STI Logo" style="width: 80px; margin-bottom: 10px;">
-            <h3 class="fw-bold header-blue">STI College Clinic</h3>
-            <p class="text-muted">Medical Examination Record</p>
+    <div class="visit-receipt position-relative">
+        <!-- Watermark Logo -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
+            <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 400px; filter: grayscale(100%);">
         </div>
+
+        <div style="position: relative; z-index: 1;">
+            <div class="text-center mb-5">
+                <img src="<?= URLROOT ?>/assets/images/logo.png" alt="STI Logo" style="width: 80px; margin-bottom: 10px;">
+                <h3 class="fw-bold header-blue">STI College Clinic</h3>
+                <p class="text-muted">Medical Examination Record</p>
+            </div>
 
         <div class="row mb-4">
             <div class="col-md-6">
@@ -149,6 +155,7 @@
         <div class="mt-5 text-center">
             <button onclick="window.close()" class="btn btn-primary">Close</button>
         </div>
+        </div> <!-- Closing position-relative wrapper -->
     </div>
 </div>
 <?php require APPROOT . '/views/layouts/footer.php'; ?>

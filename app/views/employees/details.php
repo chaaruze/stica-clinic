@@ -18,8 +18,14 @@
                         <?= $data['employee']->{'employee number'} ?>
                     </p>
                 </div>
-                <div class="card-body">
-                    <h5 class="text-sti-blue fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Personal Info</h5>
+                <div class="card-body position-relative">
+                    <!-- Watermark Logo -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
+                        <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 200px; filter: grayscale(100%);">
+                    </div>
+
+                    <div style="position: relative; z-index: 1;">
+                        <h5 class="text-sti-blue fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Personal Info</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span class="text-muted">Birthday</span>
@@ -54,6 +60,7 @@
                         <a href="<?= URLROOT ?>/employees" class="btn btn-outline-secondary"><i
                                 class="fas fa-arrow-left me-2"></i>Back to List</a>
                     </div>
+                    </div> <!-- Closing position-relative wrapper -->
                 </div>
             </div>
         </div>
