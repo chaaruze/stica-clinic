@@ -3,6 +3,14 @@
 <?php require APPROOT . '/views/layouts/sidebar.php'; ?>
 
 <div class="container-fluid mt-4">
+    <?php if (!$data['employee']): ?>
+        <div class="alert alert-danger">
+            <h4 class="alert-heading">Employee Not Found</h4>
+            <p>The requested employee record could not be found. It may have been deleted or the ID is incorrect.</p>
+            <hr>
+            <a href="<?= URLROOT ?>/employees" class="btn btn-outline-danger">Back to List</a>
+        </div>
+    <?php else: ?>
     <div class="row">
         <!-- Employee Profile Card -->
         <div class="col-md-4 mb-4">
@@ -81,8 +89,13 @@
                         </button>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
+                <div class="card-body p-0 position-relative">
+                    <!-- Watermark Logo -->
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; z-index: 0; pointer-events: none;">
+                        <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Watermark" style="width: 200px; filter: grayscale(100%);">
+                    </div>
+
+                    <div class="table-responsive" style="position: relative; z-index: 1;">
                         <table class="table table-hover align-middle mb-0" id="historyTable">
                             <thead class="bg-light text-secondary">
                                 <tr>
@@ -137,6 +150,7 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <!-- Edit Employee Modal -->

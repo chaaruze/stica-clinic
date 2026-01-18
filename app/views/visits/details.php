@@ -36,6 +36,15 @@
         border-bottom: 2px dashed #dee2e6;
         margin: 20px 0;
     }
+
+    @media print {
+        body { background-color: white !important; }
+        .navbar, .navbar-custom, footer, .btn, .no-print { display: none !important; }
+        .visit-receipt { box-shadow: none; border: none; margin: 0; padding: 0; max-width: 100%; }
+        .container { max-width: 100%; padding: 0; margin: 0; }
+        /* Ensure watermark and colors are printed */
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
 </style>
 
 <div class="container">
@@ -46,11 +55,17 @@
         </div>
 
         <div style="position: relative; z-index: 1;">
+            <!-- Print Header only visible/styled for print often, but here we reuse the main one -->
             <div class="text-center mb-5">
                 <img src="<?= URLROOT ?>/assets/images/logo.png" alt="STI Logo" style="width: 80px; margin-bottom: 10px;">
                 <h3 class="fw-bold header-blue">STI College Clinic</h3>
                 <p class="text-muted">Medical Examination Record</p>
             </div>
+
+            <!-- ... Content ... -->
+
+            <!-- ... Content ... -->
+
 
         <div class="row mb-4">
             <div class="col-md-6">
@@ -152,9 +167,11 @@
             </div>
         </div>
 
-        <div class="mt-5 text-center">
-            <button onclick="window.close()" class="btn btn-primary">Close</button>
+        <div class="mt-5 text-center no-print">
+            <button onclick="window.print()" class="btn btn-success me-2"><i class="fas fa-print me-1"></i> Print</button>
+            <button onclick="window.close()" class="btn btn-secondary">Close</button>
         </div>
+
         </div> <!-- Closing position-relative wrapper -->
     </div>
 </div>

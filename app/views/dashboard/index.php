@@ -498,6 +498,15 @@
 
     // Auto-refresh chart every 30 seconds to keep data live
     setInterval(fetchTrafficData, 30000);
+
+    // Listen for consultation end from other tabs/windows
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'consultation_ended') {
+            console.log('Consultation ended detected. Refreshing...');
+            // Reload page to update "Clinic Activity" and "Active Consultations"
+            location.reload(); 
+        }
+    });
 </script>
 
 <?php require APPROOT . '/views/layouts/footer.php'; ?>

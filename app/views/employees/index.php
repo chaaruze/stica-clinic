@@ -129,42 +129,47 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Middle Name <small class="text-muted fw-normal">(Optional)</small></label>
-                        <input type="text" class="form-control" name="middle_name" placeholder="Enter Middle Name"
-                            onkeypress="return /[a-z ]/i.test(event.key)">
-                    </div>
-                    <hr class="my-3">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Birthdate</label>
-                            <input type="date" class="form-control" name="birthdate" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Gender</label>
-                            <select class="form-select" name="sex">
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Contact Number</label>
-                            <input type="text" class="form-control" name="phone_number" placeholder="e.g., 09171234567"
-                                onkeypress="return /[0-9]/i.test(event.key)">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Position</label>
-                            <input type="text" class="form-control" name="position" placeholder="e.g., Faculty, Staff">
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary fw-bold" name="submit">SAVE RECORD</button>
-                        <button type="button" class="btn btn-light text-muted" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                            <!-- Middle Name -->
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Middle Name</label>
+                                <input type="text" class="form-control" name="middle_name" placeholder="Optional">
+                            </div>
+
+                            <!-- Birthdate -->
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Birthdate</label>
+                                <input type="date" class="form-control" name="birthdate">
+                            </div>
+
+                            <!-- Sex -->
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Sex</label>
+                                <select class="form-select" name="sex">
+                                    <option value="">Select...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Phone Number</label>
+                                <input type="text" class="form-control" name="phone_number" placeholder="Optional">
+                            </div>
+
+                            <!-- Position -->
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Position</label>
+                                <select class="form-select" name="position">
+                                    <option value="">Select...</option>
+                                    <option value="Faculty">Faculty</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
     </div>
 </div>
 

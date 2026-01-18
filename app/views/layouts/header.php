@@ -17,6 +17,7 @@
     <!-- Custom CSS -->
     <link href="<?= URLROOT ?>/assets/css/CSS.css" rel="stylesheet">
     <link href="<?= URLROOT ?>/assets/css/main.min.css" rel="stylesheet">
+    <link href="<?= URLROOT ?>/assets/css/main.min.css" rel="stylesheet">
     <style>
         .navbar-container {
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);

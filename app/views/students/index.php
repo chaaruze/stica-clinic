@@ -136,7 +136,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Birthdate</label>
-                            <input type="date" class="form-control" name="birthdate" required>
+                            <input type="date" class="form-control" name="birthdate">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Gender</label>

@@ -27,9 +27,11 @@ A modern, responsive web-based clinic management system built for STI College Al
 - **Daily Statistics** - Today's visits, active consultations, total patients
 - **Visual Charts** - Weekly visit trends with Chart.js
 - **Clinic Activity Feed** - Real-time activity tracking
+- **Audit Trails** - Track system usage, user logins, and record changes
 - **Quick Notes** - Persistent notepad for clinic staff
 
-### 🚀 Quick Actions
+### 🚀 Quick Actions & Tools
+- **Consultation Print** - One-click print for consultation records (A4 format)
 - **Quick Ball FAB** - Floating action button for fast access to add patients
 - **Instant Search** - DataTables-powered search and filtering
 - **Responsive Design** - Works on desktop and mobile devices
@@ -126,6 +128,7 @@ stica-clinic/
 | `employee details` | Employee information (ID, name, age, gender, contact, position) |
 | `student history` | Student clinic visit records |
 | `employee history` | Employee clinic visit records |
+| `activity_logs` | Audit trail of all user actions (Add, Update, Delete, Login) |
 | `users` | Admin/staff login credentials |
 
 ---
@@ -137,6 +140,22 @@ stica-clinic/
 <img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/d752d55e-7175-4db3-ac0f-955766120389" />
 <img width="1902" height="906" alt="image" src="https://github.com/user-attachments/assets/8d4d5120-58bc-4895-98f0-cc4023eba6a1" />
 
+
+---
+
+## 🔄 Updates & CI/CD Pipeline
+
+The system includes a built-in update mechanism:
+1.  **System Update Button**: Located in the **Sidebar** for easy access.
+2.  **Logic**: Automatically pulls the latest changes from the `main` branch via `git pull`.
+3.  **Conflict Resolution**: In case of conflicts, manual intervention on the server (using git CLI) is required.
+
+## 📧 Email Configuration
+
+To enable features like "Forgot Password":
+1.  Open `app/config/config.php`
+2.  Configure your SMTP credentials (Host, User, Password, Port).
+3.  **Note**: The system checks if the email is registered in the database before sending any recovery links.
 
 ---
 

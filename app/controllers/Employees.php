@@ -3,6 +3,8 @@ class Employees extends Controller
 {
     private $employeeModel;
 
+    private $logModel;
+
     public function __construct()
     {
 
@@ -11,6 +13,7 @@ class Employees extends Controller
             exit;
         }
         $this->employeeModel = $this->model('Employee');
+        $this->logModel = $this->model('Log');
     }
 
     public function index()
@@ -26,8 +29,6 @@ class Employees extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Sanitize
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
             $data = [
                 'employee_id' => trim($_POST['employee_id']),
                 'last_name' => trim($_POST['last_name']),
@@ -40,6 +41,7 @@ class Employees extends Controller
             ];
 
             if ($this->employeeModel->addEmployee($data)) {
+                $this->logModel->add('Add Employee', "Added employee {$data['employee_id']} - {$data['last_name']}");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -50,8 +52,22 @@ class Employees extends Controller
     public function update()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = $_POST;
+            $original_employee_number = trim($_POST['original_employee_number'] ?? '');
+
+            $data = [
+                'original_employee_number' => ($original_employee_number !== '') ? $original_employee_number : null,
+                'employee_number' => trim($_POST['employee_number']),
+                'last_name' => trim($_POST['last_name']),
+                'first_name' => trim($_POST['first_name']),
+                'middle_name' => trim($_POST['middle_name']),
+                'birthdate' => trim($_POST['birthdate'] ?? '') ?: null,
+                'sex' => trim($_POST['sex'] ?? '') ?: null,
+                'phone_number' => trim($_POST['phone_number'] ?? '') ?: null,
+                'position' => trim($_POST['position'] ?? '') ?: null
+            ];
+
             if ($this->employeeModel->updateEmployee($data)) {
+                $this->logModel->add('Update Employee', "Updated employee {$data['employee_number']}");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -66,6 +82,7 @@ class Employees extends Controller
             $data = json_decode($json, true);
 
             if ($this->employeeModel->addEmployeesBatch($data)) {
+                $this->logModel->add('Import Employees', "Imported user batch: " . count($data) . " records");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -92,6 +109,7 @@ class Employees extends Controller
             
             if (!empty($data['ids'])) {
                 if ($this->employeeModel->deleteEmployees($data['ids'])) {
+                    $this->logModel->add('Delete Employees', "Deleted IDs: " . implode(', ', $data['ids']));
                     echo json_encode(['status' => 'success']);
                 } else {
                     echo json_encode(['status' => 'error']);

@@ -75,12 +75,13 @@ class Visits extends Controller
             $type = $data['type'] ?? '';
             $visits = $data['visits'] ?? []; // Array of {date: '', time: ''}
 
-            if (!empty($id) && !empty($type) && !empty($visits)) {
+            // Allow ID to be '0' string
+            if (($id !== '') && !empty($type) && !empty($visits)) {
                 $visitModel = $this->model('Visit');
                 if ($visitModel->deleteVisits($type, $id, $visits)) {
                     echo json_encode(['status' => 'success']);
                 } else {
-                    echo json_encode(['status' => 'error']);
+                    echo json_encode(['status' => 'error', 'message' => 'Database error']);
                 }
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid data']);

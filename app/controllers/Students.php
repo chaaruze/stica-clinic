@@ -3,6 +3,8 @@ class Students extends Controller
 {
     private $studentModel;
 
+    private $logModel;
+
     public function __construct()
     {
 
@@ -11,6 +13,7 @@ class Students extends Controller
             exit;
         }
         $this->studentModel = $this->model('Student');
+        $this->logModel = $this->model('Log');
     }
 
     public function index()
@@ -25,8 +28,6 @@ class Students extends Controller
     public function add()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
             $data = [
                 'student_number' => trim($_POST['student_number']),
                 'last_name' => trim($_POST['last_name']),
@@ -39,6 +40,7 @@ class Students extends Controller
             ];
 
             if ($this->studentModel->addStudent($data)) {
+                $this->logModel->add('Add Student', "Added student {$data['student_number']} - {$data['last_name']}");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -50,8 +52,22 @@ class Students extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // In a real app, sanitize and validate
-            $data = $_POST;
+            $original_student_number = trim($_POST['original_student_number'] ?? '');
+            
+            $data = [
+                'original_student_number' => ($original_student_number !== '') ? $original_student_number : null,
+                'student_number' => trim($_POST['student_number']),
+                'last_name' => trim($_POST['last_name']),
+                'first_name' => trim($_POST['first_name']),
+                'middle_name' => trim($_POST['middle_name']),
+                'birthdate' => trim($_POST['birthdate'] ?? '') ?: null,
+                'sex' => trim($_POST['sex'] ?? '') ?: null,
+                'phone_number' => trim($_POST['phone_number'] ?? '') ?: null,
+                'course' => trim($_POST['course'] ?? '') ?: null
+            ];
+            
             if ($this->studentModel->updateStudent($data)) {
+                $this->logModel->add('Update Student', "Updated student {$data['student_number']}");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -66,6 +82,7 @@ class Students extends Controller
             $data = json_decode($json, true);
 
             if ($this->studentModel->addStudentsBatch($data)) {
+                $this->logModel->add('Import Students', "Imported batch: " . count($data) . " records");
                 echo json_encode(['status' => 'success']);
             } else {
                 echo json_encode(['status' => 'error']);
@@ -99,6 +116,7 @@ class Students extends Controller
             
             if (!empty($data['ids'])) {
                 if ($this->studentModel->deleteStudents($data['ids'])) {
+                    $this->logModel->add('Delete Students', "Deleted IDs: " . implode(', ', $data['ids']));
                     echo json_encode(['status' => 'success']);
                 } else {
                     echo json_encode(['status' => 'error']);

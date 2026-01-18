@@ -46,6 +46,9 @@
         </nav>
 
         <div class="mt-auto">
+            <a href="<?= URLROOT ?>/logs" class="custom-nav-link text-decoration-none mb-2">
+                <i class="fas fa-clipboard-list fa-lg me-3"></i> Audit Logs
+            </a>
             <a href="<?= URLROOT ?>/maintenance/index" class="custom-nav-link text-decoration-none mb-2">
                 <i class="fas fa-tools fa-lg me-3"></i> Maintenance
             </a>
