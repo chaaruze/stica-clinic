@@ -30,7 +30,7 @@
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm mb-4">
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 text-end">
-                    <button id="deleteSelectedBtn" class="btn btn-danger fw-bold text-white shadow-sm me-2" style="display: none;" onclick="deleteSelectedEmployees()">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger fw-bold text-white shadow-sm me-2" style="display: none;">
                         <i class="fas fa-trash me-1"></i> Delete Selected (<span id="selectedCount">0</span>)
                     </button>
                     <button id="addStudentBtn" class="btn btn-success fw-bold text-white shadow-sm"
@@ -130,8 +130,8 @@
                     <hr class="my-3">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Age</label>
-                            <input type="number" class="form-control" name="age" placeholder="Enter Age" min="1" max="100">
+                            <label class="form-label fw-bold">Birthdate</label>
+                            <input type="date" class="form-control" name="birthdate" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Gender</label>
@@ -162,6 +162,8 @@
         </div>
     </div>
 </div>
+
+<?php require APPROOT . '/views/layouts/footer.php'; ?>
 
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -195,29 +197,73 @@
                     var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     var excelRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                     
-                    // Get headers from first row
-                    var headers = excelRows[0] || [];
+                    if (!excelRows || excelRows.length === 0) {
+                        Swal.fire('Error', 'The Excel file appears to be empty.', 'error');
+                        return;
+                    }
                     
-                    // Normalize headers for matching (lowercase, trim)
-                    var normalizedHeaders = headers.map(h => (h || '').toString().toLowerCase().trim());
+                    // Normalize function: lowercase, trim, remove extra spaces
+                    var normalize = h => (h || '').toString().toLowerCase().trim().replace(/\s+/g, ' ');
                     
-                    // Define possible column name variations for each field
+                    // ===== AUTO-DETECT HEADER ROW =====
+                    // Rosters often have metadata rows before headers
+                    var headerRowIndex = 0;
+                    var headerKeywords = ['employee id', 'employee no', 'last name', 'first name', 'lastname', 'firstname', 'position'];
+                    
+                    for (var ri = 0; ri < Math.min(excelRows.length, 15); ri++) {
+                        var row = excelRows[ri] || [];
+                        var normalizedRow = row.map(normalize);
+                        var matchCount = 0;
+                        for (var hi = 0; hi < headerKeywords.length; hi++) {
+                            for (var ci = 0; ci < normalizedRow.length; ci++) {
+                                var cellVal = normalizedRow[ci] || ''; // Handle sparse array holes
+                                if (cellVal === headerKeywords[hi] || cellVal.includes(headerKeywords[hi])) {
+                                    matchCount++;
+                                    break;
+                                }
+                            }
+                        }
+                        if (matchCount >= 2) {
+                            headerRowIndex = ri;
+                            console.log('Detected header row at index:', ri, 'Headers:', row.filter(h => h));
+                            break;
+                        }
+                    }
+                    
+                    var headers = excelRows[headerRowIndex] || [];
+                    var normalizedHeaders = headers.map(normalize);
+                    
+                    // ===== COLUMN MAPPINGS =====
                     var columnMappings = {
-                        employee_id: ['employee id', 'employee_id', 'employeeid', 'employee no', 'employee number', 'id', 'no', 'number'],
-                        last_name: ['last name', 'last_name', 'lastname', 'surname', 'family name'],
-                        first_name: ['first name', 'first_name', 'firstname', 'given name', 'name'],
-                        middle_name: ['middle name', 'middle_name', 'middlename', 'middle'],
-                        age: ['age'],
+                        employee_id: ['employee id', 'employee no', 'employee number', 'id number', 'employee_id', 'employeeid'],
+                        last_name: ['last name', 'surname', 'family name', 'lastname'],
+                        first_name: ['first name', 'given name', 'forename', 'firstname'],
+                        middle_name: ['middle name', 'middle initial', 'middlename', 'middle'],
+                        birthdate: ['birthdate', 'birthday', 'birth date', 'date of birth', 'dob'],
                         sex: ['sex', 'gender'],
-                        phone_number: ['phone number', 'phone_number', 'phone', 'contact', 'contact number', 'mobile'],
-                        position: ['position', 'job title', 'job', 'role', 'designation']
+                        phone_number: ['phone number', 'contact number', 'mobile number', 'mobile', 'contact', 'cel#', 'cp#'],
+                        position: ['position', 'job title', 'designation', 'role', 'department']
                     };
                     
-                    // Find column index for each field
+                    // Smart Column Finder
                     function findColumnIndex(possibleNames) {
-                        for (var i = 0; i < normalizedHeaders.length; i++) {
-                            for (var j = 0; j < possibleNames.length; j++) {
-                                if (normalizedHeaders[i] === possibleNames[j] || normalizedHeaders[i].includes(possibleNames[j])) {
+                        // Pass 1: Exact Match (Prioritize Alias Order)
+                        for (var j = 0; j < possibleNames.length; j++) {
+                            var alias = possibleNames[j];
+                            for (var i = 0; i < normalizedHeaders.length; i++) {
+                                var headerVal = normalizedHeaders[i] || ''; // Handle sparse array holes
+                                if (headerVal === alias) {
+                                    return i;
+                                }
+                            }
+                        }
+                        
+                        // Pass 2: Ends With Match (Prioritize Alias Order)
+                        for (var j = 0; j < possibleNames.length; j++) {
+                            var alias = possibleNames[j];
+                            for (var i = 0; i < normalizedHeaders.length; i++) {
+                                var headerVal = normalizedHeaders[i] || ''; // Handle sparse array holes
+                                if (headerVal.endsWith(alias)) {
                                     return i;
                                 }
                             }
@@ -230,34 +276,60 @@
                         last_name: findColumnIndex(columnMappings.last_name),
                         first_name: findColumnIndex(columnMappings.first_name),
                         middle_name: findColumnIndex(columnMappings.middle_name),
-                        age: findColumnIndex(columnMappings.age),
+                        birthdate: findColumnIndex(columnMappings.birthdate),
                         sex: findColumnIndex(columnMappings.sex),
                         phone_number: findColumnIndex(columnMappings.phone_number),
                         position: findColumnIndex(columnMappings.position)
                     };
                     
-                    console.log('Detected columns:', columnIndices);
-                    console.log('Headers found:', headers);
+                    console.log('Detected column indices:', columnIndices);
                     
-                    // Map data rows using detected column indices
-                    var rowData = excelRows.slice(1).filter(row => row.length > 0).map(row => {
+                    // Map data rows (skip rows before and including header)
+                    var dataRows = excelRows.slice(headerRowIndex + 1);
+                    var rowData = dataRows.filter(row => row && row.length > 0).map(row => {
                         return {
                             employee_id: columnIndices.employee_id >= 0 ? (row[columnIndices.employee_id] || '') : '',
                             last_name: columnIndices.last_name >= 0 ? (row[columnIndices.last_name] || '') : '',
                             first_name: columnIndices.first_name >= 0 ? (row[columnIndices.first_name] || '') : '',
                             middle_name: columnIndices.middle_name >= 0 ? (row[columnIndices.middle_name] || '') : '',
-                            age: columnIndices.age >= 0 ? (row[columnIndices.age] || '') : '',
+                            birthdate: columnIndices.birthdate >= 0 ? (function(val) {
+                                if (!val) return null;
+                                if (typeof val === 'number' || !isNaN(Number(val))) {
+                                    var serial = Number(val);
+                                    if (serial > 25000 && serial < 60000) {
+                                        var excelEpoch = new Date(1899, 11, 30);
+                                        var date = new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
+                                        return date.toISOString().split('T')[0];
+                                    }
+                                }
+                                var d = new Date(val);
+                                return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null;
+                            })(row[columnIndices.birthdate]) : null,
                             sex: columnIndices.sex >= 0 ? (row[columnIndices.sex] || '') : '',
                             phone_number: columnIndices.phone_number >= 0 ? (row[columnIndices.phone_number] || '') : '',
                             position: columnIndices.position >= 0 ? (row[columnIndices.position] || '') : ''
                         };
                     });
+                    
+                    // Filter out rows without ID or Name to avoid empty inserts
+                    rowData = rowData.filter(r => r.employee_id && (r.last_name || r.first_name));
 
-                    // Validate required fields
                     if (columnIndices.employee_id < 0) {
-                        alert('Could not find "Employee ID" column. Please check your Excel headers.');
+                        Swal.fire('Mapping Error', 'Could not find "Employee ID" column.<br>Please ensure header is named "Employee ID" or "Employee Number".', 'error');
                         return;
                     }
+
+                    if (rowData.length === 0) {
+                        Swal.fire('Empty Data', 'No valid records found to import.', 'warning');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Importing...',
+                        text: 'Processing ' + rowData.length + ' records.',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
 
                     $.ajax({
                         url: '<?= URLROOT ?>/employees/import',
@@ -266,21 +338,21 @@
                         dataType: 'json',
                         success: function (response) {
                             if (response.status === 'success') {
-                                alert('Import successful! ' + rowData.length + ' records processed.');
-                                location.reload();
+                                Swal.fire('Success!', rowData.length + ' records imported successfully.', 'success')
+                                    .then(() => location.reload());
                             } else {
-                                alert('Failed to import.');
+                                Swal.fire('Import Failed', 'Server refused the data.', 'error');
                             }
                         },
                         error: function (err) {
                             console.error(err);
-                            alert('Failed to save data. Check console for details.');
+                            Swal.fire('Error', 'Failed to save data. Check console.', 'error');
                         }
                     });
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                alert('Please select an Excel file first.');
+                Swal.fire('No File', 'Please select an Excel file first.', 'warning');
             }
         });
 
@@ -301,15 +373,17 @@
                     } else {
                         alert('Error adding employee');
                     }
-                },
-                error: function () {
-                    alert("An error occurred. Please try again.");
                 }
             });
         });
+
+        $(document).on('click', '#deleteSelectedBtn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            deleteSelectedEmployees();
+        });
     });
 
-    // Multi-select delete functions
     function toggleSelectAll(source) {
         const checkboxes = document.querySelectorAll('.employee-checkbox');
         checkboxes.forEach(cb => cb.checked = source.checked);
@@ -322,7 +396,6 @@
         document.getElementById('selectedCount').textContent = count;
         document.getElementById('deleteSelectedBtn').style.display = count > 0 ? 'inline-block' : 'none';
         
-        // Update select all checkbox state
         const allCheckboxes = document.querySelectorAll('.employee-checkbox');
         document.getElementById('selectAll').checked = allCheckboxes.length > 0 && checked.length === allCheckboxes.length;
     }
@@ -331,27 +404,69 @@
         const checked = document.querySelectorAll('.employee-checkbox:checked');
         const ids = Array.from(checked).map(cb => cb.value);
         
-        if (ids.length === 0) return;
+        console.log('Delete clicked. Found checked:', checked.length, 'IDs:', ids);
         
-        if (!confirm(`Are you sure you want to delete ${ids.length} employee(s)? This will also delete their visit history.`)) {
+        if (ids.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Selection',
+                text: 'Please select at least one employee.',
+                confirmButtonColor: '#0072BC'
+            });
             return;
         }
+        
+        Swal.fire({
+            title: 'Delete ' + ids.length + ' Employees?',
+            text: "This will also delete their visit history. You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete them!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-        fetch('<?= URLROOT ?>/employees/deleteMultiple', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: ids })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(`${ids.length} employee(s) deleted successfully!`);
-                location.reload();
-            } else {
-                alert('Error deleting employees.');
+                fetch('<?= URLROOT ?>/employees/deleteMultiple', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire(
+                            'Deleted!',
+                            ids.length + ' employee(s) have been deleted.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(err => {
+                    console.error('Delete error:', err);
+                    Swal.fire(
+                        'Error!',
+                        'Network error. Check console.',
+                        'error'
+                    );
+                });
             }
         });
     }
 </script>
-
-<?php require APPROOT . '/views/layouts/footer.php'; ?>

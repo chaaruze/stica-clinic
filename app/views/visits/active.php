@@ -134,6 +134,10 @@
     </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     // Timer Logic
     const startTimeStr = "<?= $data['visit']->{'date visit'} . ' ' . $data['visit']->{'time visit'} ?>";
@@ -164,54 +168,84 @@
     // Form Submit
     document.getElementById('activeVisitForm').addEventListener('submit', function (e) {
         e.preventDefault();
-        if (!confirm('Are you sure you want to end this consultation?')) return;
+        
+        Swal.fire({
+            title: 'End Consultation?',
+            text: "Are you sure you want to save and end this session?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Save & End'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+                Swal.fire({
+                    title: 'Saving...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-        const formData = new FormData(this);
+                const formData = new FormData(this);
 
-        fetch('<?= URLROOT ?>/visits/save_visit', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Visit saved successfully!');
-                    // Signal other windows to refresh (dashboard, etc.)
-                    localStorage.setItem('consultation_ended', Date.now().toString());
-                    window.close(); // Close tab on success
-                } else {
-                    alert('Error saving visit.');
-                }
-            });
+                fetch('<?= URLROOT ?>/visits/save_visit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Signal other windows to refresh
+                        localStorage.setItem('consultation_ended', Date.now().toString());
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Consultation Saved',
+                            text: 'Window will close automatically.',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.close();
+                        });
+                        
+                        // Fallback close just in case
+                        setTimeout(() => window.close(), 2500);
+                    } else {
+                        Swal.fire('Error!', 'Failed to save visit.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire('Error!', 'Network request failed.', 'error');
+                });
+            }
+        });
     });
 </script>
 
-<!-- Add some Animate.css for pulse effect if not already included in header logic, otherwise inline CSS -->
+<!-- Pulse Animation Style -->
 <style>
     @keyframes pulse-red {
         0% {
             transform: scale(1);
             box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
         }
-
         70% {
             transform: scale(1.05);
             box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
         }
-
         100% {
             transform: scale(1);
             box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
         }
     }
-
     .animate__pulse {
         animation: pulse-red 2s infinite;
     }
 </style>
-
-<!-- Clean Footer (No sidebar/nav for this focused view) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

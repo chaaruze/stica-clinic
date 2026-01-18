@@ -30,7 +30,7 @@
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm mb-4">
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-4 text-end">
-                    <button id="deleteSelectedBtn" class="btn btn-danger fw-bold text-white shadow-sm me-2" style="display: none;" onclick="deleteSelectedStudents()">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger fw-bold text-white shadow-sm me-2" style="display: none;">
                         <i class="fas fa-trash me-1"></i> Delete Selected (<span id="selectedCount">0</span>)
                     </button>
                     <button id="addStudentBtn" class="btn btn-success fw-bold text-white shadow-sm"
@@ -130,8 +130,8 @@
                     <hr class="my-3">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Age</label>
-                            <input type="number" class="form-control" name="age" placeholder="Enter Age" min="1" max="100">
+                            <label class="form-label fw-bold">Birthdate</label>
+                            <input type="date" class="form-control" name="birthdate" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Gender</label>
@@ -162,6 +162,8 @@
         </div>
     </div>
 </div>
+
+<?php require APPROOT . '/views/layouts/footer.php'; ?>
 
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -195,29 +197,76 @@
                     var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     var excelRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                     
-                    // Get headers from first row
-                    var headers = excelRows[0] || [];
+                    if (!excelRows || excelRows.length === 0) {
+                        Swal.fire('Error', 'The Excel file appears to be empty.', 'error');
+                        return;
+                    }
                     
-                    // Normalize headers for matching (lowercase, trim)
-                    var normalizedHeaders = headers.map(h => (h || '').toString().toLowerCase().trim());
+                    // Normalize function: lowercase, trim, remove extra spaces
+                    var normalize = h => (h || '').toString().toLowerCase().trim().replace(/\s+/g, ' ');
                     
-                    // Define possible column name variations for each field
+                    // ===== AUTO-DETECT HEADER ROW =====
+                    // STI rosters often have metadata rows before headers
+                    // Look for a row that contains student-related column names
+                    var headerRowIndex = 0;
+                    var headerKeywords = ['student no', 'student number', 'lrn', 'last name', 'first name', 'lastname', 'firstname'];
+                    
+                    for (var ri = 0; ri < Math.min(excelRows.length, 15); ri++) {
+                        var row = excelRows[ri] || [];
+                        var normalizedRow = row.map(normalize);
+                        var matchCount = 0;
+                        for (var hi = 0; hi < headerKeywords.length; hi++) {
+                            for (var ci = 0; ci < normalizedRow.length; ci++) {
+                                var cellVal = normalizedRow[ci] || ''; // Handle sparse array holes
+                                if (cellVal === headerKeywords[hi] || cellVal.includes(headerKeywords[hi])) {
+                                    matchCount++;
+                                    break; // Only count once per keyword
+                                }
+                            }
+                        }
+                        // If we find at least 2 matching keywords, this is likely the header row
+                        if (matchCount >= 2) {
+                            headerRowIndex = ri;
+                            console.log('Detected header row at index:', ri, 'Headers:', row.filter(h => h));
+                            break;
+                        }
+                    }
+                    
+                    var headers = excelRows[headerRowIndex] || [];
+                    var normalizedHeaders = headers.map(normalize);
+                    
+                    // ===== COLUMN MAPPINGS (Updated for STI Roster Format) =====
                     var columnMappings = {
-                        student_number: ['student number', 'student_number', 'studentnumber', 'student no', 'student id', 'id', 'no', 'number'],
-                        last_name: ['last name', 'last_name', 'lastname', 'surname', 'family name'],
-                        first_name: ['first name', 'first_name', 'firstname', 'given name', 'name'],
-                        middle_name: ['middle name', 'middle_name', 'middlename', 'middle'],
+                        student_number: ['student no', 'student number', 'student id', 'id number', 'lrn', 'student_number', 'studentno'],
+                        last_name: ['last name', 'surname', 'family name', 'lastname'],
+                        first_name: ['first name', 'given name', 'forename', 'firstname'],
+                        middle_name: ['middle name', 'middle initial', 'middlename', 'middle'],
                         age: ['age'],
+                        birthdate: ['birthdate', 'birthday', 'birth date', 'date of birth', 'dob'],
                         sex: ['sex', 'gender'],
-                        phone_number: ['phone number', 'phone_number', 'phone', 'contact', 'contact number', 'mobile'],
-                        course: ['course', 'course/year', 'course year', 'program', 'strand', 'section']
+                        phone_number: ['phone number', 'contact number', 'mobile number', 'mobile', 'contact', 'cel#', 'cp#'],
+                        course: ['course', 'course/year', 'program', 'strand', 'section', 'year level', 'level', 'track']
                     };
                     
-                    // Find column index for each field
+                    // Smart Column Finder
                     function findColumnIndex(possibleNames) {
-                        for (var i = 0; i < normalizedHeaders.length; i++) {
-                            for (var j = 0; j < possibleNames.length; j++) {
-                                if (normalizedHeaders[i] === possibleNames[j] || normalizedHeaders[i].includes(possibleNames[j])) {
+                        // Pass 1: Exact Match (Prioritize Alias Order)
+                        for (var j = 0; j < possibleNames.length; j++) {
+                            var alias = possibleNames[j];
+                            for (var i = 0; i < normalizedHeaders.length; i++) {
+                                var headerVal = normalizedHeaders[i] || ''; // Handle sparse array holes
+                                if (headerVal === alias) {
+                                    return i;
+                                }
+                            }
+                        }
+                        
+                        // Pass 2: Ends With Match (Prioritize Alias Order)
+                        for (var j = 0; j < possibleNames.length; j++) {
+                            var alias = possibleNames[j];
+                            for (var i = 0; i < normalizedHeaders.length; i++) {
+                                var headerVal = normalizedHeaders[i] || ''; // Handle sparse array holes
+                                if (headerVal.endsWith(alias)) {
                                     return i;
                                 }
                             }
@@ -231,33 +280,67 @@
                         first_name: findColumnIndex(columnMappings.first_name),
                         middle_name: findColumnIndex(columnMappings.middle_name),
                         age: findColumnIndex(columnMappings.age),
+                        birthdate: findColumnIndex(columnMappings.birthdate),
                         sex: findColumnIndex(columnMappings.sex),
                         phone_number: findColumnIndex(columnMappings.phone_number),
                         course: findColumnIndex(columnMappings.course)
                     };
                     
-                    console.log('Detected columns:', columnIndices);
-                    console.log('Headers found:', headers);
+                    // Helper function to calculate age from birthdate
+
                     
-                    // Map data rows using detected column indices
-                    var rowData = excelRows.slice(1).filter(row => row.length > 0).map(row => {
+                    console.log('Detected column indices:', columnIndices);
+                    
+                    // Map data rows (skip rows before and including header)
+                    var dataRows = excelRows.slice(headerRowIndex + 1);
+                    var rowData = dataRows.filter(row => row && row.length > 0).map(row => {
+                        // Get age from age column, or calculate from birthdate
+
+                        
                         return {
-                            student_number: columnIndices.student_number >= 0 ? (row[columnIndices.student_number] || '') : '',
-                            last_name: columnIndices.last_name >= 0 ? (row[columnIndices.last_name] || '') : '',
-                            first_name: columnIndices.first_name >= 0 ? (row[columnIndices.first_name] || '') : '',
-                            middle_name: columnIndices.middle_name >= 0 ? (row[columnIndices.middle_name] || '') : '',
-                            age: columnIndices.age >= 0 ? (row[columnIndices.age] || '') : '',
-                            sex: columnIndices.sex >= 0 ? (row[columnIndices.sex] || '') : '',
-                            phone_number: columnIndices.phone_number >= 0 ? (row[columnIndices.phone_number] || '') : '',
-                            course: columnIndices.course >= 0 ? (row[columnIndices.course] || '') : ''
+                            student_number: columnIndices.student_number >= 0 ? String(row[columnIndices.student_number] || '').trim() : '',
+                            last_name: columnIndices.last_name >= 0 ? String(row[columnIndices.last_name] || '').trim() : '',
+                            first_name: columnIndices.first_name >= 0 ? String(row[columnIndices.first_name] || '').trim() : '',
+                            middle_name: columnIndices.middle_name >= 0 ? String(row[columnIndices.middle_name] || '').trim() : '',
+                            birthdate: columnIndices.birthdate >= 0 ? (function(val) {
+                                // Handle Excel serial numbers or strings
+                                if (!val) return null;
+                                if (typeof val === 'number' || !isNaN(Number(val))) {
+                                    var serial = Number(val);
+                                    if (serial > 25000 && serial < 60000) {
+                                        var excelEpoch = new Date(1899, 11, 30);
+                                        var date = new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
+                                        return date.toISOString().split('T')[0];
+                                    }
+                                }
+                                var d = new Date(val);
+                                return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null;
+                            })(row[columnIndices.birthdate]) : null,
+                            sex: columnIndices.sex >= 0 ? String(row[columnIndices.sex] || '').trim() : '',
+                            phone_number: columnIndices.phone_number >= 0 ? String(row[columnIndices.phone_number] || '').trim() : '',
+                            course: columnIndices.course >= 0 ? String(row[columnIndices.course] || '').trim() : ''
                         };
                     });
                     
-                    // Validate required fields
+                    // Filter out rows without ID or Name to avoid empty inserts
+                    rowData = rowData.filter(r => r.student_number && (r.last_name || r.first_name));
+                    
                     if (columnIndices.student_number < 0) {
-                        alert('Could not find "Student Number" column. Please check your Excel headers.');
+                        Swal.fire('Mapping Error', 'Could not find "Student Number" column.<br>Please ensure header is named "Student Number" or "Student ID".', 'error');
                         return;
                     }
+
+                    if (rowData.length === 0) {
+                        Swal.fire('Empty Data', 'No valid records found to import.', 'warning');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Importing...',
+                        text: 'Processing ' + rowData.length + ' records.',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
 
                     $.ajax({
                         url: '<?= URLROOT ?>/students/import',
@@ -266,21 +349,21 @@
                         dataType: 'json',
                         success: function (response) {
                             if (response.status === 'success') {
-                                alert('Import successful! ' + rowData.length + ' records processed.');
-                                location.reload();
+                                Swal.fire('Success!', rowData.length + ' records imported successfully.', 'success')
+                                    .then(() => location.reload());
                             } else {
-                                alert('Failed to import.');
+                                Swal.fire('Import Failed', 'Server refused the data.', 'error');
                             }
                         },
                         error: function (err) {
                             console.error(err);
-                            alert('Failed to save data. Check console for details.');
+                            Swal.fire('Error', 'Failed to save data. Check console.', 'error');
                         }
                     });
                 };
                 reader.readAsArrayBuffer(file);
             } else {
-                alert('Please select an Excel file first.');
+                Swal.fire('No File', 'Please select an Excel file first.', 'warning');
             }
         });
 
@@ -302,13 +385,23 @@
                     } else {
                         alert('Error adding student. Please check inputs.');
                     }
-                },
-                error: function () {
-                    alert("An error occurred. Please try again.");
                 }
             });
         });
+
+
+
+        // Attach delete button click handler using delegation (more robust)
+        $(document).on('click', '#deleteSelectedBtn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Delegated click detected!');
+            deleteSelectedStudents();
+        });
+        
+        console.log('Students index script loaded and ready.');
     });
+
 
     // Multi-select delete functions
     function toggleSelectAll(source) {
@@ -329,30 +422,76 @@
     }
 
     function deleteSelectedStudents() {
-        const checked = document.querySelectorAll('.student-checkbox:checked');
-        const ids = Array.from(checked).map(cb => cb.value);
+        // Use jQuery to ensure we catch elements even if DataTables manipulated them
+        const checked = $('.student-checkbox:checked'); 
+        const ids = [];
+        checked.each(function() {
+            ids.push($(this).val());
+        });
         
-        if (ids.length === 0) return;
-        
-        if (!confirm(`Are you sure you want to delete ${ids.length} student(s)? This will also delete their visit history.`)) {
+        console.log('Delete requested. Found:', ids.length, 'IDs:', ids);
+        if (ids.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Selection',
+                text: 'Please select at least one student.',
+                confirmButtonColor: '#0072BC'
+            });
             return;
         }
+        
+        Swal.fire({
+            title: 'Delete ' + ids.length + ' Students?',
+            text: "This will also delete their visit history. You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete them!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-        fetch('<?= URLROOT ?>/students/deleteMultiple', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: ids })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(`${ids.length} student(s) deleted successfully!`);
-                location.reload();
-            } else {
-                alert('Error deleting students.');
+                fetch('<?= URLROOT ?>/students/deleteMultiple', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire(
+                            'Deleted!',
+                            ids.length + ' student(s) have been deleted.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(err => {
+                    console.error('Delete error:', err);
+                    Swal.fire(
+                        'Error!',
+                        'Network error. Check console.',
+                        'error'
+                    );
+                });
             }
         });
     }
 </script>
-
-<?php require APPROOT . '/views/layouts/footer.php'; ?>

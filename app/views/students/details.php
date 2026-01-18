@@ -22,9 +22,9 @@
                     <h5 class="text-sti-blue fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Personal Info</h5>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span class="text-muted">Age</span>
+                            <span class="text-muted">Birthday</span>
                             <span class="fw-bold">
-                                <?= isset($data['student']->age) ? $data['student']->age : 'N/A' ?>
+                                <?= !empty($data['student']->birthdate) ? date('F j, Y', strtotime($data['student']->birthdate)) : 'N/A' ?>
                             </span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -65,7 +65,7 @@
                     <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Clinic Visit History
                     </h5>
                     <div>
-                        <button class="btn btn-sm btn-danger me-2 d-none" id="deleteSelectedBtn" onclick="deleteSelectedHistory()">
+                        <button class="btn btn-sm btn-danger me-2 d-none" id="deleteSelectedBtn">
                             <i class="fas fa-trash me-1"></i>Delete Selected (<span id="selectedCount">0</span>)
                         </button>
                         <button class="btn btn-sm btn-warning"
@@ -165,8 +165,8 @@
                     <hr class="my-3">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Age</label>
-                            <input type="number" class="form-control" name="age" value="<?= $data['student']->age ?? '' ?>">
+                            <label class="form-label">Birthdate</label>
+                            <input type="date" class="form-control" name="birthdate" value="<?= $data['student']->birthdate ?? '' ?>">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Gender</label>
@@ -257,12 +257,16 @@
                     }
                 });
             });
+
+            // Attach delegated click handler for delete button
+            $(document).on('click', '#deleteSelectedBtn', function(e) {
+                e.preventDefault();
+                deleteSelectedHistory();
+            });
         }
     });
 
     function deleteSelectedHistory() {
-        if(!confirm('Are you sure you want to delete the selected history records? This cannot be undone.')) return;
-
         const selected = [];
         document.querySelectorAll('.history-checkbox:checked').forEach(cb => {
             const parts = cb.value.split('|');
@@ -274,27 +278,45 @@
 
         if(selected.length === 0) return;
 
-        fetch('<?= URLROOT ?>/visits/delete_history', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: '<?= $data['student']->{'student number'} ?>',
-                type: 'Student',
-                visits: selected
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'success') {
-                alert('Records deleted successfully');
-                window.location.reload();
-            } else {
-                alert('Error deleting records');
+        Swal.fire({
+            title: 'Delete ' + selected.length + ' Records?',
+            text: "This cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete them!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleting...',
+                    didOpen: () => Swal.showLoading()
+                });
+
+                fetch('<?= URLROOT ?>/visits/delete_history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: '<?= $data['student']->{'student number'} ?>',
+                        type: 'Student',
+                        visits: selected
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        Swal.fire('Deleted!', 'Records deleted successfully', 'success')
+                            .then(() => window.location.reload());
+                    } else {
+                        Swal.fire('Error!', 'Error deleting records', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error!', 'Network error', 'error');
+                });
             }
-        })
-        .catch(err => console.error(err));
+        });
     }
 </script>
 

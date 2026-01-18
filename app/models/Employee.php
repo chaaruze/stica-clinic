@@ -23,12 +23,12 @@ class Employee
 
     public function addEmployee($data)
     {
-        $this->db->query("INSERT INTO `employee details` (`employee number`, `last name`, `first name`, `middle name`, `age`, `sex`, `phone number`, `position`) VALUES (:id, :lname, :fname, :mname, :age, :sex, :phone, :position)");
+        $this->db->query("INSERT INTO `employee details` (`employee number`, `last name`, `first name`, `middle name`, `birthdate`, `sex`, `phone number`, `position`) VALUES (:id, :lname, :fname, :mname, :birthdate, :sex, :phone, :position)");
         $this->db->bind(':id', $data['employee_id']);
         $this->db->bind(':lname', $data['last_name']);
         $this->db->bind(':fname', $data['first_name']);
         $this->db->bind(':mname', $data['middle_name']);
-        $this->db->bind(':age', $data['age'] ?: null);
+        $this->db->bind(':birthdate', $data['birthdate'] ?: null);
         $this->db->bind(':sex', $data['sex'] ?: null);
         $this->db->bind(':phone', $data['phone_number'] ?: null);
         $this->db->bind(':position', $data['position'] ?: null);
@@ -47,12 +47,13 @@ class Employee
         $newId = $data['employee_number'];
         
         // Update employee details
+        // Update employee details
         $this->db->query("UPDATE `employee details` SET 
             `employee number` = :new_id,
             `last name` = :lname,
             `first name` = :fname,
             `middle name` = :mname,
-            `age` = :age, 
+            `birthdate` = :birthdate, 
             `sex` = :sex, 
             `phone number` = :phone, 
             `position` = :position 
@@ -62,7 +63,7 @@ class Employee
         $this->db->bind(':lname', $data['last_name'] ?? '');
         $this->db->bind(':fname', $data['first_name'] ?? '');
         $this->db->bind(':mname', $data['middle_name'] ?? '');
-        $this->db->bind(':age', $data['age'] ?: null);
+        $this->db->bind(':birthdate', $data['birthdate'] ?: null);
         $this->db->bind(':sex', $data['sex'] ?: null);
         $this->db->bind(':phone', $data['phone_number'] ?: null);
         $this->db->bind(':position', $data['position'] ?: null);
@@ -84,10 +85,10 @@ class Employee
     // Example import logic
     public function addEmployeesBatch($rows)
     {
-        // This accepts array of rows [id, lname, fname, mname, age, sex, phone, position]
+        // This accepts array of rows [id, lname, fname, mname, birthdate, sex, phone, position]
         $sql = "INSERT INTO `employee details` 
-        (`employee number`, `last name`, `first name`, `middle name`, `age`, `sex`, `phone number`, `position`) 
-        VALUES (:id, :lname, :fname, :mname, :age, :sex, :phone, :pos)";
+        (`employee number`, `last name`, `first name`, `middle name`, `birthdate`, `sex`, `phone number`, `position`) 
+        VALUES (:id, :lname, :fname, :mname, :birthdate, :sex, :phone, :pos)";
         
         $this->db->prepare($sql);
 
@@ -96,7 +97,7 @@ class Employee
             $this->db->bind(':lname', $row['last_name']);
             $this->db->bind(':fname', $row['first_name']);
             $this->db->bind(':mname', $row['middle_name']);
-            $this->db->bind(':age', $row['age'] ?? '');
+            $this->db->bind(':birthdate', $row['birthdate'] ?? null);
             $this->db->bind(':sex', $row['sex'] ?? '');
             $this->db->bind(':phone', $row['phone_number'] ?? '');
             $this->db->bind(':pos', $row['position'] ?? '');
