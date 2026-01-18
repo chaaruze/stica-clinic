@@ -2,6 +2,11 @@
 // Load Config
 require_once 'config/config.php';
 
+// Error Logging Configuration
+ini_set('log_errors', 1);
+ini_set('error_log', dirname(__FILE__) . '/logs/error.log');
+error_reporting(E_ALL);
+
 // Load Libraries
 // Core Libraries
 require_once 'core/App.php';

@@ -25,9 +25,6 @@
                 aria-controls="offcanvasExample">
                 <i class="fa-solid fa-bars"></i>
             </a>
-            <div class="navbar-logo-circle">
-                <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Logo">
-            </div>
             <span class="fw-bold text-white d-none d-md-block" style="font-family: 'Schibsted Grotesk', sans-serif;">STICA Clinic</span>
             
             <!-- Navbar Breadcrumb Trail -->

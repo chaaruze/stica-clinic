@@ -26,9 +26,6 @@
     data-bs-backdrop="false">
     <div class="offcanvas-header justify-content-between">
         <div class="d-flex align-items-center">
-            <div class="logo-circle me-3">
-                <img src="<?= URLROOT ?>/assets/images/logo.png" alt="Logo">
-            </div>
             <h5 class="offcanvas-title fw-bold" id="offcanvasExampleLabel"
                 style="font-family: 'Schibsted Grotesk', sans-serif;">STICA Clinic</h5>
         </div>
@@ -49,10 +46,16 @@
         </nav>
 
         <div class="mt-auto">
-            <a href="<?= URLROOT ?>/home/logout"
-                class="nav-link custom-nav-link text-danger border border-danger rounded mb-3 text-center"
+            <a href="<?= URLROOT ?>/maintenance/index" class="custom-nav-link text-decoration-none mb-2">
+                <i class="fas fa-tools fa-lg me-3"></i> Maintenance
+            </a>
+            <a href="<?= URLROOT ?>/system/update" class="custom-nav-link text-decoration-none mb-2">
+                <i class="fas fa-sync-alt fa-lg me-3"></i> System Update
+            </a>
+            <a href="<?= URLROOT ?>/users/logout"
+                class="custom-nav-link text-decoration-none text-danger mt-1"
                 onclick="return confirm('Are you sure you want to log out?')">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-sign-out-alt fa-lg me-3"></i> Logout
             </a>
             <div class="text-center">
                 <small class="text-white-50">&copy; <?= date('Y') ?> STI College Alabang</small>
