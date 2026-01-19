@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees - STICA Clinic</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sti-blue: #0072bc;
+            --sti-yellow: #fdb913;
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: white;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebarui-header {
+            height: 60px;
+            background: var(--sti-blue);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            color: white;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: #555;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #f8f9fa;
+            color: var(--sti-blue);
+            border-left-color: var(--sti-blue);
+        }
+
+        .menu-item i {
+            width: 25px;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+
+        .navbar-custom {
+            background: var(--sti-blue);
+            height: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar.active {
+                margin-left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebarui-header">
+            <h5 class="mb-0 fw-bold">STICA CLINIC</h5>
+            <button class="btn text-white d-md-none ms-auto" onclick="toggleSidebar()"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="px-3 mb-2 small text-muted fw-bold">MAIN MENU</div>
+            <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="students.html" class="menu-item"><i class="fas fa-user-graduate"></i> Students</a>
+            <a href="employees.html" class="menu-item active"><i class="fas fa-users"></i> Employees</a>
+            <a href="inventory.html" class="menu-item"><i class="fas fa-pills"></i> Inventory</a>
+            <a href="#" class="menu-item"><i class="fas fa-clipboard-list"></i> Audit Logs</a>
+
+            <div class="px-3 mt-4 mb-2 small text-muted fw-bold">SYSTEM</div>
+            <a href="#" class="menu-item" onclick="MockAuth.logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <nav class="navbar navbar-custom px-3">
+            <div class="d-flex align-items-center w-100">
+                <button class="btn text-white me-3 d-md-none" onclick="toggleSidebar()"><i
+                        class="fas fa-bars"></i></button>
+                <span class="text-white fw-bold d-none d-md-block">Employee Records</span>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-4">
+            <div class="d-flex justify-content-between mb-3 align-items-center">
+                <h4 class="fw-bold"><i class="fas fa-users me-2 text-primary"></i>Employees</h4>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
+                    <i class="fas fa-plus me-1"></i> Add Employee
+                </button>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="employeesTable" class="table table-hover align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Add Employee</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addForm">
+                        <div class="mb-3"><label>Employee ID</label><input type="text" id="id" class="form-control"
+                                required></div>
+                        <div class="row g-2 mb-3">
+                            <div class="col"><label>Last Name</label><input type="text" id="lname" class="form-control"
+                                    required></div>
+                            <div class="col"><label>First Name</label><input type="text" id="fname" class="form-control"
+                                    required></div>
+                        </div>
+                        <div class="mb-3"><label>Position</label><input type="text" id="position" class="form-control"
+                                required></div>
+                        <div class="mb-3"><label>Contact</label><input type="text" id="contact" class="form-control"
+                                required></div>
+                        <button type="submit" class="btn btn-primary w-100">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/mock_db.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        MockAuth.checkSession();
+        let table;
+
+        function loadEmployees() {
+            const employees = MockDB.get('employees');
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+
+            employees.forEach(s => {
+                html += `<tr>
+                <td><span class="badge bg-light text-dark border">${s.id}</span></td>
+                <td class="fw-bold">${s.lastName}, ${s.firstName}</td>
+                <td><span class="badge bg-info text-dark">${s.position}</span></td>
+                <td>${s.contact}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger rounded-circle" onclick="deleteEmp('${s.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+            });
+
+            if (table) table.destroy();
+            tbody.innerHTML = html;
+            table = $('#employeesTable').DataTable();
+        }
+
+        document.getElementById('addForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const s = {
+                id: document.getElementById('id').value,
+                lastName: document.getElementById('lname').value,
+                firstName: document.getElementById('fname').value,
+                middleName: '',
+                position: document.getElementById('position').value,
+                contact: document.getElementById('contact').value
+            };
+            MockDB.add('employees', s);
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+            e.target.reset();
+            Swal.fire('Success', 'Employee added', 'success');
+            loadEmployees();
+        });
+
+        window.deleteEmp = (id) => {
+            if (confirm('Delete this record?')) {
+                MockDB.delete('employees', 'id', id);
+                loadEmployees();
+            }
+        };
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        loadEmployees();
+    </script>
+</body>
+
+</html>

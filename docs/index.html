@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - STICA Clinic</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sti-blue: #0072bc;
+            --sti-yellow: #fdb913;
+        }
+        
+        body {
+            font-family: 'Schibsted Grotesk', sans-serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('assets/images/login-background.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .login-header {
+            background: var(--sti-blue);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: var(--sti-yellow);
+        }
+
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .logo-container img {
+            width: 60%;
+            height: auto;
+        }
+
+        .btn-primary {
+            background-color: var(--sti-blue);
+            border-color: var(--sti-blue);
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #005a96;
+            border-color: #005a96;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="login-header">
+        <div class="logo-container">
+            <img src="assets/images/logo.png" alt="STI Logo">
+        </div>
+        <h4 class="text-white fw-bold mb-0">STICA CLINIC</h4>
+        <small class="text-white-50">Health Management System</small>
+    </div>
+    
+    <div class="p-4 p-md-5">
+        <div id="alertPlaceholder"></div>
+        
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label text-muted small fw-bold">USERNAME</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-primary"></i></span>
+                    <input type="text" id="username" class="form-control bg-light border-start-0" placeholder="Enter username" required value="admin">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label text-muted small fw-bold">PASSWORD</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-primary"></i></span>
+                    <input type="password" id="password" class="form-control bg-light border-start-0" placeholder="Enter password" required value="admin123">
+                </div>
+            </div>
+            
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary rounded-pill">
+                    LOGIN <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <small class="text-muted">Default: admin / admin123</small>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/mock_db.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    // Init DB
+    MockDB.init();
+
+    // Check if already logged in
+    if(sessionStorage.getItem('stica_user')) {
+        window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const alert = document.getElementById('alertPlaceholder');
+
+        if (MockAuth.login(user, pass)) {
+            window.location.href = 'dashboard.html';
+        } else {
+            alert.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-1"></i> Invalid credentials!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+    });
+</script>
+
+</body>
+</html>
