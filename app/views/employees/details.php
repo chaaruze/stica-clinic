@@ -61,6 +61,29 @@
                         </li>
                     </ul>
 
+                    <!-- Emergency Contact Section -->
+                    <h5 class="text-danger fw-bold mb-3 mt-4"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Contact Name</span>
+                            <span class="fw-bold">
+                                <?= !empty($data['employee']->emergency_contact_name) ? htmlspecialchars($data['employee']->emergency_contact_name) : 'N/A' ?>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Contact Phone</span>
+                            <span class="fw-bold">
+                                <?php if (!empty($data['employee']->emergency_contact_phone)): ?>
+                                    <a href="tel:<?= htmlspecialchars($data['employee']->emergency_contact_phone) ?>" class="text-decoration-none">
+                                        <i class="fas fa-phone me-1"></i><?= htmlspecialchars($data['employee']->emergency_contact_phone) ?>
+                                    </a>
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
+                            </span>
+                        </li>
+                    </ul>
+
                     <div class="mt-4 d-grid gap-2">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
                             <i class="fas fa-edit me-2"></i>Edit Personal Info
@@ -208,6 +231,23 @@
                             <input type="text" class="form-control" name="position" value="<?= $data['employee']->position ?? '' ?>">
                         </div>
                     </div>
+                    
+                    <!-- Emergency Contact Section -->
+                    <hr class="my-3">
+                    <h6 class="text-danger fw-bold mb-3"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact Name</label>
+                            <input type="text" class="form-control" name="emergency_contact_name" 
+                                value="<?= $data['employee']->emergency_contact_name ?? '' ?>" placeholder="Family Member/Friend">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contact Phone</label>
+                            <input type="text" class="form-control" name="emergency_contact_phone" 
+                                value="<?= $data['employee']->emergency_contact_phone ?? '' ?>" placeholder="09XX-XXX-XXXX">
+                        </div>
+                    </div>
+                    
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>

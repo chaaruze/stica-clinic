@@ -15,25 +15,27 @@ class Log {
             `user_name` varchar(255) NOT NULL,
             `action` varchar(255) NOT NULL,
             `details` text,
-            `ip_address` varchar(45),
             `created_at` datetime DEFAULT current_timestamp(),
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
         
         $this->db->query($sql);
         $this->db->execute();
+        
+        // Drop ip_address column if it exists (cleanup)
+        $this->db->query("ALTER TABLE `activity_logs` DROP COLUMN IF EXISTS `ip_address`");
+        $this->db->execute();
     }
 
     public function add($action, $details = '') {
         if (!isset($_SESSION['id'])) return false;
 
-        $this->db->query("INSERT INTO activity_logs (user_id, user_name, action, details, ip_address) VALUES (:uid, :uname, :action, :details, :ip)");
+        $this->db->query("INSERT INTO activity_logs (user_id, user_name, action, details) VALUES (:uid, :uname, :action, :details)");
         
         $this->db->bind(':uid', $_SESSION['id']);
         $this->db->bind(':uname', $_SESSION['name'] ?? 'Unknown');
         $this->db->bind(':action', $action);
         $this->db->bind(':details', $details);
-        $this->db->bind(':ip', $_SERVER['REMOTE_ADDR']);
 
         return $this->db->execute();
     }

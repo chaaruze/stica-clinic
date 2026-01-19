@@ -40,27 +40,25 @@
                     class="fas fa-user-graduate"></i>Students</a>
             <a class="nav-link custom-nav-link" href="<?= URLROOT ?>/employees"><i
                     class="fas fa-users"></i>Employees</a>
-            <!-- Backup link removed -->
-             <a class="nav-link custom-nav-link" href="<?= URLROOT ?>/users/change_password"><i
-                    class="fas fa-key"></i>Change Password</a>
+            
+            <a href="<?= URLROOT ?>/medicines" class="nav-link custom-nav-link">
+                <i class="fas fa-pills"></i>Inventory
+            </a>
+            <a href="<?= URLROOT ?>/logs" class="nav-link custom-nav-link">
+                <i class="fas fa-clipboard-list"></i>Audit Logs
+            </a>
         </nav>
 
         <div class="mt-auto">
-            <a href="<?= URLROOT ?>/logs" class="custom-nav-link text-decoration-none mb-2">
-                <i class="fas fa-clipboard-list fa-lg me-3"></i> Audit Logs
-            </a>
-            <a href="<?= URLROOT ?>/maintenance/index" class="custom-nav-link text-decoration-none mb-2">
-                <i class="fas fa-tools fa-lg me-3"></i> Maintenance
-            </a>
-            <a href="<?= URLROOT ?>/system/update" class="custom-nav-link text-decoration-none mb-2">
-                <i class="fas fa-sync-alt fa-lg me-3"></i> System Update
-            </a>
+             <a class="nav-link custom-nav-link mb-2" href="<?= URLROOT ?>/users/change_password"><i
+                    class="fas fa-key"></i>Change Password</a>
+                    
             <a href="<?= URLROOT ?>/users/logout"
                 class="custom-nav-link text-decoration-none text-danger mt-1"
                 onclick="return confirm('Are you sure you want to log out?')">
                 <i class="fas fa-sign-out-alt fa-lg me-3"></i> Logout
             </a>
-            <div class="text-center">
+            <div class="text-center mt-3">
                 <small class="text-white-50">&copy; <?= date('Y') ?> STI College Alabang</small>
             </div>
         </div>

@@ -14,12 +14,14 @@ A modern, responsive web-based clinic management system built for STI College Al
 ### 👥 Patient Management
 - **Student Records** - Manage student information with ID, name, age, gender, contact, and course/year
 - **Employee Records** - Track employee details including position and contact information
+- **Emergency Contacts** - Dedicated fields for emergency contact name and phone number
 - **Excel Import** - Bulk import students/employees from Excel files
 - **Multi-Select Delete** - Select and delete multiple records at once
 
 ### 🩺 Consultation Tracking
 - **Real-time Timer** - Track consultation duration with live timer
-- **Vital Signs Recording** - Blood pressure, temperature, weight, pulse rate
+- **Vital Signs Recording** - Blood pressure, temperature, weight, pulse rate (with color-coded limit alerts)
+- **Smart Quick-Picks** - One-click common diagnoses and treatments (e.g., Hot/Cold Compress, Paracetamol)
 - **Diagnosis & Treatment** - Document reasons, diagnoses, and interventions
 - **Visit History** - Complete history of all clinic visits per patient
 

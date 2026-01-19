@@ -6,6 +6,16 @@ class Employee
     public function __construct()
     {
         $this->db = new Database;
+        $this->ensureEmergencyColumns();
+    }
+
+    // Auto-migrate: Add emergency contact columns if they don't exist
+    private function ensureEmergencyColumns()
+    {
+        $this->db->query("ALTER TABLE `employee details` ADD COLUMN IF NOT EXISTS `emergency_contact_name` VARCHAR(255)");
+        $this->db->execute();
+        $this->db->query("ALTER TABLE `employee details` ADD COLUMN IF NOT EXISTS `emergency_contact_phone` VARCHAR(50)");
+        $this->db->execute();
     }
 
     public function getEmployees()
@@ -23,7 +33,7 @@ class Employee
 
     public function addEmployee($data)
     {
-        $this->db->query("INSERT INTO `employee details` (`employee number`, `last name`, `first name`, `middle name`, `birthdate`, `sex`, `phone number`, `position`) VALUES (:id, :lname, :fname, :mname, :birthdate, :sex, :phone, :position)");
+        $this->db->query("INSERT INTO `employee details` (`employee number`, `last name`, `first name`, `middle name`, `birthdate`, `sex`, `phone number`, `position`, `emergency_contact_name`, `emergency_contact_phone`) VALUES (:id, :lname, :fname, :mname, :birthdate, :sex, :phone, :position, :ec_name, :ec_phone)");
         $this->db->bind(':id', $data['employee_id']);
         $this->db->bind(':lname', $data['last_name']);
         $this->db->bind(':fname', $data['first_name']);
@@ -32,6 +42,8 @@ class Employee
         $this->db->bind(':sex', $data['sex'] ?: null);
         $this->db->bind(':phone', $data['phone_number']);
         $this->db->bind(':position', $data['position']);
+        $this->db->bind(':ec_name', $data['emergency_contact_name'] ?? null);
+        $this->db->bind(':ec_phone', $data['emergency_contact_phone'] ?? null);
 
         if ($this->db->execute()) {
             return true;
@@ -46,8 +58,7 @@ class Employee
         $whereId = $data['original_employee_number'] ?? $data['employee_number'];
         $newId = $data['employee_number'];
         
-        // Update employee details
-        // Update employee details
+        // Update employee details including emergency contact
         $this->db->query("UPDATE `employee details` SET 
             `employee number` = :new_id,
             `last name` = :lname,
@@ -56,7 +67,9 @@ class Employee
             `birthdate` = :birthdate, 
             `sex` = :sex, 
             `phone number` = :phone, 
-            `position` = :position 
+            `position` = :position,
+            `emergency_contact_name` = :ec_name,
+            `emergency_contact_phone` = :ec_phone
             WHERE `employee number` = :id");
         $this->db->bind(':id', $whereId);
         $this->db->bind(':new_id', $newId);
@@ -67,6 +80,8 @@ class Employee
         $this->db->bind(':sex', $data['sex'] ?: null);
         $this->db->bind(':phone', $data['phone_number']);
         $this->db->bind(':position', $data['position']);
+        $this->db->bind(':ec_name', $data['emergency_contact_name'] ?? null);
+        $this->db->bind(':ec_phone', $data['emergency_contact_phone'] ?? null);
 
         if ($this->db->execute()) {
             // If ID changed, also update all history records

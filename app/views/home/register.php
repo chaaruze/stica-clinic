@@ -43,7 +43,7 @@
         .login-right {
             flex: 1;
             background-color: var(--sti-blue);
-            background-image: url('<?= URLROOT ?>/assets/images/login-background(1).png');
+            background-image: url('<?= URLROOT ?>/assets/images/login-background.png');
             background-size: cover;
             background-position: center;
             position: relative;

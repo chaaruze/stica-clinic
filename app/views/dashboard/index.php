@@ -502,7 +502,6 @@
     // Listen for consultation end from other tabs/windows
     window.addEventListener('storage', function(e) {
         if (e.key === 'consultation_ended') {
-            console.log('Consultation ended detected. Refreshing...');
             // Reload page to update "Clinic Activity" and "Active Consultations"
             location.reload(); 
         }

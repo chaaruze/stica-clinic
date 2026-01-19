@@ -44,6 +44,10 @@
                      echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Details</span>';
                 } elseif (strpos($current_url, 'employees') !== false) {
                     echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Employees</span>';
+                } elseif (strpos($current_url, 'medicines') !== false) {
+                    echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Inventory</span>';
+                } elseif (strpos($current_url, 'logs') !== false) {
+                    echo '<span class="text-white-50 mx-2">/</span><span class="text-white small">Audit Logs</span>';
                 }
                 ?>
             </div>
