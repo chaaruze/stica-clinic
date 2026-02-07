@@ -10,10 +10,38 @@
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = ltrim($uri, '/');
 
-// Serve files from public folder directly if they exist
+// Serve static files from public folder if they exist
 $publicPath = __DIR__ . '/public/' . $uri;
 if ($uri !== '' && is_file($publicPath)) {
-    return false;
+    // Get the file extension
+    $ext = strtolower(pathinfo($publicPath, PATHINFO_EXTENSION));
+
+    // Set appropriate Content-Type header
+    $mimeTypes = [
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'ico' => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'eot' => 'application/vnd.ms-fontobject',
+        'json' => 'application/json',
+        'pdf' => 'application/pdf',
+        'webp' => 'image/webp'
+    ];
+
+    if (isset($mimeTypes[$ext])) {
+        header('Content-Type: ' . $mimeTypes[$ext]);
+    }
+
+    // Output the file contents
+    readfile($publicPath);
+    return;
 }
 
 // For all other routes, handle via MVC router
