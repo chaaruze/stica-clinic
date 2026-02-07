@@ -10,24 +10,27 @@ class Visit
 
     public function getCombinedRecentVisits($limit = 15)
     {
+        // SQLite: Use || for string concatenation instead of CONCAT()
         $sql = "
-            (SELECT 
-                CONCAT(`student details`.`last name`, ', ', `student details`.`first name`) AS name,
-                'Student' AS type,
-                `student history`.`student number` AS id,
-                `student history`.`date visit` AS date_visit,
-                `student history`.`time visit` AS time_visit
-            FROM `student history`
-            JOIN `student details` ON `student history`.`student number` = `student details`.`student number`)
-            UNION ALL
-            (SELECT 
-                CONCAT(`employee details`.`last name`, ', ', `employee details`.`first name`) AS name,
-                'Employee' AS type,
-                `employee history`.`employee number` AS id,
-                `employee history`.`date visit` AS date_visit,
-                `employee history`.`time visit` AS time_visit
-            FROM `employee history`
-            JOIN `employee details` ON `employee history`.`employee number` = `employee details`.`employee number`)
+            SELECT * FROM (
+                SELECT 
+                    (student_details.last_name || ', ' || student_details.first_name) AS name,
+                    'Student' AS type,
+                    student_history.student_number AS id,
+                    student_history.date_visit AS date_visit,
+                    student_history.time_visit AS time_visit
+                FROM student_history
+                JOIN student_details ON student_history.student_number = student_details.student_number
+                UNION ALL
+                SELECT 
+                    (employee_details.last_name || ', ' || employee_details.first_name) AS name,
+                    'Employee' AS type,
+                    employee_history.employee_number AS id,
+                    employee_history.date_visit AS date_visit,
+                    employee_history.time_visit AS time_visit
+                FROM employee_history
+                JOIN employee_details ON employee_history.employee_number = employee_details.employee_number
+            )
             ORDER BY date_visit DESC, time_visit DESC
             LIMIT :limit
         ";
@@ -40,25 +43,27 @@ class Visit
     public function getActiveVisits()
     {
         $sql = "
-            (SELECT 
-                CONCAT(`student details`.`last name`, ', ', `student details`.`first name`) AS name,
-                'Student' AS type,
-                `student history`.`student number` AS id,
-                `student history`.`date visit` AS date_visit,
-                `student history`.`time visit` AS time_visit
-            FROM `student history`
-            JOIN `student details` ON `student history`.`student number` = `student details`.`student number`
-            WHERE `student history`.status = 'Ongoing')
-            UNION ALL
-            (SELECT 
-                CONCAT(`employee details`.`last name`, ', ', `employee details`.`first name`) AS name,
-                'Employee' AS type,
-                `employee history`.`employee number` AS id,
-                `employee history`.`time visit` AS time_visit,
-                 `employee history`.`date visit` AS date_visit
-            FROM `employee history`
-            JOIN `employee details` ON `employee history`.`employee number` = `employee details`.`employee number`
-            WHERE `employee history`.status = 'Ongoing')
+            SELECT * FROM (
+                SELECT 
+                    (student_details.last_name || ', ' || student_details.first_name) AS name,
+                    'Student' AS type,
+                    student_history.student_number AS id,
+                    student_history.date_visit AS date_visit,
+                    student_history.time_visit AS time_visit
+                FROM student_history
+                JOIN student_details ON student_history.student_number = student_details.student_number
+                WHERE student_history.status = 'Ongoing'
+                UNION ALL
+                SELECT 
+                    (employee_details.last_name || ', ' || employee_details.first_name) AS name,
+                    'Employee' AS type,
+                    employee_history.employee_number AS id,
+                    employee_history.date_visit AS date_visit,
+                    employee_history.time_visit AS time_visit
+                FROM employee_history
+                JOIN employee_details ON employee_history.employee_number = employee_details.employee_number
+                WHERE employee_history.status = 'Ongoing'
+            )
             ORDER BY time_visit DESC
         ";
         $this->db->query($sql);
@@ -67,37 +72,49 @@ class Visit
 
     public function getTrafficData($year, $month)
     {
-        // If specific month is selected, show daily data for that month
+        // SQLite: Use strftime() instead of DATE_FORMAT(), YEAR(), MONTH()
         if ($month !== 'all') {
             $sql = "
                 SELECT 
-                    DATE_FORMAT(date_visit, '%d') as label, 
+                    strftime('%d', date_visit) as label, 
                     COUNT(*) as count
                 FROM (
-                    SELECT `date visit` as date_visit FROM `student history`
+                    SELECT date_visit FROM student_history
                     UNION ALL
-                    SELECT `date visit` as date_visit FROM `employee history`
+                    SELECT date_visit FROM employee_history
                 ) as all_visits
-                WHERE YEAR(date_visit) = :year AND MONTH(date_visit) = :month
+                WHERE strftime('%Y', date_visit) = :year AND strftime('%m', date_visit) = :month
                 GROUP BY date_visit
                 ORDER BY date_visit ASC
             ";
             $this->db->query($sql);
             $this->db->bind(':year', $year);
-            $this->db->bind(':month', $month);
+            $this->db->bind(':month', str_pad($month, 2, '0', STR_PAD_LEFT));
         } else {
-            // "All Months": Show monthly data for the selected year
             $sql = "
                 SELECT 
-                    DATE_FORMAT(date_visit, '%M') as label, 
-                    MONTH(date_visit) as month_num,
+                    CASE strftime('%m', date_visit)
+                        WHEN '01' THEN 'January'
+                        WHEN '02' THEN 'February'
+                        WHEN '03' THEN 'March'
+                        WHEN '04' THEN 'April'
+                        WHEN '05' THEN 'May'
+                        WHEN '06' THEN 'June'
+                        WHEN '07' THEN 'July'
+                        WHEN '08' THEN 'August'
+                        WHEN '09' THEN 'September'
+                        WHEN '10' THEN 'October'
+                        WHEN '11' THEN 'November'
+                        WHEN '12' THEN 'December'
+                    END as label, 
+                    strftime('%m', date_visit) as month_num,
                     COUNT(*) as count
                 FROM (
-                    SELECT `date visit` as date_visit FROM `student history`
+                    SELECT date_visit FROM student_history
                     UNION ALL
-                    SELECT `date visit` as date_visit FROM `employee history`
+                    SELECT date_visit FROM employee_history
                 ) as all_visits
-                WHERE YEAR(date_visit) = :year
+                WHERE strftime('%Y', date_visit) = :year
                 GROUP BY month_num
                 ORDER BY month_num ASC
             ";
@@ -110,15 +127,13 @@ class Visit
 
     public function getVisitById($type, $id)
     {
-        // Fetch specific visit details based on user ID and timestamp (since no unique visit ID exists)
-        $table = ($type == 'Student') ? 'student history' : 'employee history';
-        $column = strtolower($type) . ' number';
+        $table = ($type == 'Student') ? 'student_history' : 'employee_history';
+        $column = ($type == 'Student') ? 'student_number' : 'employee_number';
 
-        $sql = "SELECT * FROM `$table` WHERE `$column` = :id";
+        $sql = "SELECT * FROM $table WHERE $column = :id";
 
-        // If we have date/time params
         if (isset($_GET['date']) && isset($_GET['time'])) {
-            $sql .= " AND `date visit` = :date AND `time visit` = :time";
+            $sql .= " AND date_visit = :date AND time_visit = :time";
             $this->db->query($sql);
             $this->db->bind(':id', $id);
             $this->db->bind(':date', $_GET['date']);
@@ -126,20 +141,18 @@ class Visit
             return $this->db->single();
         }
 
-        // Fallback: Return latest
-        $sql .= " ORDER BY `date visit` DESC LIMIT 1";
+        $sql .= " ORDER BY date_visit DESC LIMIT 1";
         $this->db->query($sql);
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
-
     public function findActiveVisit($type, $id)
     {
-        $table = ($type == 'Student') ? 'student history' : 'employee history';
-        $col = strtolower($type) . ' number';
+        $table = ($type == 'Student') ? 'student_history' : 'employee_history';
+        $col = ($type == 'Student') ? 'student_number' : 'employee_number';
 
-        $sql = "SELECT * FROM `$table` WHERE `$col` = :id AND status = 'Ongoing' LIMIT 1";
+        $sql = "SELECT * FROM $table WHERE $col = :id AND status = 'Ongoing' LIMIT 1";
         $this->db->query($sql);
         $this->db->bind(':id', $id);
 
@@ -148,10 +161,11 @@ class Visit
 
     public function startVisit($type, $id)
     {
-        $table = ($type == 'Student') ? 'student history' : 'employee history';
-        $col = strtolower($type) . ' number';
+        $table = ($type == 'Student') ? 'student_history' : 'employee_history';
+        $col = ($type == 'Student') ? 'student_number' : 'employee_number';
 
-        $sql = "INSERT INTO `$table` (`$col`, `date visit`, `time visit`, `status`) VALUES (:id, CURDATE(), CURTIME(), 'Ongoing')";
+        // SQLite: Use date('now', 'localtime') and time('now', 'localtime')
+        $sql = "INSERT INTO $table ($col, date_visit, time_visit, status) VALUES (:id, date('now', 'localtime'), time('now', 'localtime'), 'Ongoing')";
         $this->db->query($sql);
         $this->db->bind(':id', $id);
 
@@ -162,35 +176,20 @@ class Visit
     {
         $type = $data['type'] ?? '';
         $id = $data['id'] ?? '';
-        $table = ($type == 'Student') ? 'student history' : 'employee history';
-        $col = strtolower($type) . ' number';
+        $table = ($type == 'Student') ? 'student_history' : 'employee_history';
+        $col = ($type == 'Student') ? 'student_number' : 'employee_number';
 
-        // Column names differ between student and employee history tables
-        if ($type == 'Student') {
-            // Student uses: diagnosis, intervention
-            $sql = "UPDATE `$table` SET 
-                        status = 'Completed', 
-                        time_ended = CURTIME(),
-                        blood_pressure = :bp,
-                        temperature = :temp,
-                        weight = :weight,
-                        pulse_rate = :pulse,
-                        diagnosis = :reason,
-                        intervention = :treatment
-                    WHERE `$col` = :id AND status = 'Ongoing'";
-        } else {
-            // Employee uses: reason / diagnosis, treatment
-            $sql = "UPDATE `$table` SET 
-                        status = 'Completed', 
-                        time_ended = CURTIME(),
-                        blood_pressure = :bp,
-                        temperature = :temp,
-                        weight = :weight,
-                        pulse_rate = :pulse,
-                        `reason / diagnosis` = :reason,
-                        treatment = :treatment
-                    WHERE `$col` = :id AND status = 'Ongoing'";
-        }
+        // Simplified: using unified column names (defined in migration)
+        $sql = "UPDATE $table SET 
+                    status = 'Completed', 
+                    time_out = time('now', 'localtime'),
+                    bp = :bp,
+                    temperature = :temp,
+                    weight = :weight,
+                    pulse_rate = :pulse,
+                    diagnosis = :reason,
+                    treatment = :treatment
+                WHERE $col = :id AND status = 'Ongoing'";
 
         $this->db->query($sql);
         $this->db->bind(':id', $id);
@@ -204,27 +203,24 @@ class Visit
         return $this->db->execute();
     }
 
-
     public function deleteVisits($type, $id, $visits)
     {
-        $table = ($type == 'Student') ? 'student history' : 'employee history';
-        $col = strtolower($type) . ' number';
+        $table = ($type == 'Student') ? 'student_history' : 'employee_history';
+        $col = ($type == 'Student') ? 'student_number' : 'employee_number';
 
-        // Prepare statement for multiple deletes
-        // We delete one by one or construct a large query. One by one is safer for composite keys.
-        $sql = "DELETE FROM `$table` WHERE `$col` = :id AND `date visit` = :date AND `time visit` = :time";
-        
+        $sql = "DELETE FROM $table WHERE $col = :id AND date_visit = :date AND time_visit = :time";
+
         $this->db->prepare($sql);
 
         foreach ($visits as $visit) {
             $this->db->bind(':id', $id);
             $this->db->bind(':date', $visit['date']);
             $this->db->bind(':time', $visit['time']);
-            
+
             try {
                 $this->db->execute();
             } catch (Exception $e) {
-                // Continue or log error
+                // Continue
             }
         }
         return true;
