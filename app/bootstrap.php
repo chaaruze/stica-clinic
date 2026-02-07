@@ -31,8 +31,8 @@ if (!isset($_SESSION['id']) && isset($_COOKIE['remember_me'])) {
 
         $db = new Database();
 
-        // Prepare statement manually as Database class might not verify token hash here (using plain match for now)
-        $db->query("SELECT * FROM remember_tokens WHERE user_id = :uid AND token = :token AND expires_at > NOW()");
+        // SQLite: use datetime('now') instead of NOW()
+        $db->query("SELECT * FROM remember_tokens WHERE user_id = :uid AND token = :token AND expires_at > datetime('now')");
         $db->bind(':uid', $user_id);
         $db->bind(':token', $token);
 

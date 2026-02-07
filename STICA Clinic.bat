@@ -21,5 +21,5 @@ echo.
 REM Open browser
 start http://localhost:8080
 
-REM Start PHP built-in server
-php -S localhost:8080 -t public
+REM Start PHP built-in server with router.php
+php -S localhost:8080 router.php
