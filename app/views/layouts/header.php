@@ -8,6 +8,9 @@
     <title>
         <?php echo SITENAME; ?>
     </title>
+    <!-- Favicon -->
+    <link rel="icon" href="<?php echo URLROOT; ?>/assets/images/logo.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="<?php echo URLROOT; ?>/assets/images/logo.ico" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
