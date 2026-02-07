@@ -165,18 +165,9 @@ $db->exec("CREATE TABLE IF NOT EXISTS remember_tokens (
 )");
 echo "[OK] Created 'remember_tokens' table\n";
 
-// ================================================================
-// CREATE DEFAULT ADMIN USER
-// ================================================================
-$checkUser = $db->query("SELECT COUNT(*) FROM nurses")->fetchColumn();
-if ($checkUser == 0) {
-    $defaultPassword = password_hash('admin123', PASSWORD_DEFAULT);
-    $stmt = $db->prepare("INSERT INTO nurses (name, email, username, password) VALUES (?, ?, ?, ?)");
-    $stmt->execute(['Admin', 'admin@stica-clinic.local', 'admin', $defaultPassword]);
-    echo "[OK] Created default admin user (username: admin, password: admin123)\n";
-}
-
 echo "\n==================================\n";
 echo "Migration complete!\n";
 echo "Database location: $dbPath\n";
 echo "\nYou can now run the application.\n";
+echo "On first launch, you'll be prompted to create an admin account.\n";
+
