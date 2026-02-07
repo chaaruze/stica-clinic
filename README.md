@@ -79,7 +79,7 @@ A modern, responsive web-based clinic management system built for STI College Al
 3. **Start the development server**
    ```bash
    # Using the included batch file (Windows)
-   "STICA Clinic.bat"
+   start.bat
    
    # Or manually with PHP built-in server
    php -S localhost:8080 router.php
