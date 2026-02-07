@@ -60,7 +60,6 @@ A modern, responsive web-based clinic management system built for STI College Al
 - XAMPP, WAMP, or any PHP development environment
 - PHP 7.4 or higher
 - MySQL 5.7+ or MariaDB
-- Composer (optional)
 
 ### Steps
 
@@ -78,7 +77,7 @@ A modern, responsive web-based clinic management system built for STI College Al
 3. **Create the database**
    - Open phpMyAdmin
    - Create a new database named `stica_clinic`
-   - Import `database/stica_clinic.sql` (if available) or create tables manually
+   - Import `database/stica_clinic.sql` (if available) or run the migrations
 
 4. **Configure database connection**
    - Edit `app/config/config.php`
@@ -142,23 +141,6 @@ stica-clinic/
 <img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/d752d55e-7175-4db3-ac0f-955766120389" />
 <img width="1902" height="906" alt="image" src="https://github.com/user-attachments/assets/8d4d5120-58bc-4895-98f0-cc4023eba6a1" />
 
-
----
-
-## 🔄 Updates & CI/CD Pipeline
-
-The system includes a built-in update mechanism:
-1.  **System Update Button**: Located in the **Sidebar** for easy access.
-2.  **Logic**: Automatically pulls the latest changes from the `main` branch via `git pull`.
-3.  **Conflict Resolution**: In case of conflicts, manual intervention on the server (using git CLI) is required.
-
-## 📧 Email Configuration
-
-To enable features like "Forgot Password":
-1.  Open `app/config/config.php`
-2.  Configure your SMTP credentials (Host, User, Password, Port).
-3.  **Note**: The system checks if the email is registered in the database before sending any recovery links.
-
 ---
 
 ## 👨‍💻 Author
@@ -172,15 +154,6 @@ To enable features like "Forgot Password":
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- STI College Alabang
-- Bootstrap Team
-- Chart.js Contributors
-- DataTables
 
 ---
 
