@@ -38,7 +38,6 @@ A modern, responsive web-based clinic management system built for STI College Al
 
 ### 🚀 Quick Actions & Tools
 - **Consultation Print** - One-click print for consultation records (A4 format)
-- **Quick Ball FAB** - Floating action button for fast access to add patients
 - **Instant Search** - DataTables-powered search and filtering
 - **Responsive Design** - Works on desktop and mobile devices
 
