@@ -1,11 +1,36 @@
 # 🏥 STICA Clinic Management System
 
-A modern, responsive web-based clinic management system built for STI College Alabang. Streamlines student and employee health visit tracking, consultations, and medical records management.
+> [!IMPORTANT]
+> **Project status: Academic prototype - maintenance-only**
+>
+> This repository is retained as a portfolio artifact from a five-person capstone project. I served as the project
+> lead and lead programmer. It is not actively maintained or production-ready, and some workflows may be incomplete,
+> outdated, or defective. Installation and feature behavior are not guaranteed in current environments.
+>
+> Do not use this software with real patient, student, employee, or medical data. Its security, privacy, backup,
+> data-retention, and regulatory requirements have not been validated.
+
+An academic clinic-management prototype originally built for STI College Alabang to explore student and employee
+health-visit tracking, consultations, and medical-record workflows.
 
 ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+
+---
+
+## Maintenance status
+
+- No active maintenance, support, or compatibility guarantee.
+- Some workflows—including authentication, record management, reports, and imports—have not been recently verified
+  and may not function as intended.
+- Dependencies, setup instructions, and environment assumptions may be outdated.
+- Security, privacy, access control, backups, and data retention have not been professionally audited.
+- Use synthetic test data only. This is not production medical software.
+
+The repository remains useful as a demonstration of PHP MVC structure, SQLite data modeling, interface design, and
+technical leadership in a student team.
 
 ---
 
@@ -63,7 +88,9 @@ A modern, responsive web-based clinic management system built for STI College Al
 - PHP 7.4 or higher
 - No additional database server required (uses SQLite)
 
-### Quick Start (Recommended)
+### Local inspection (legacy instructions)
+
+These instructions are retained for code review and may not work in current environments.
 
 1. **Clone the repository**
    ```bash
@@ -174,7 +201,9 @@ stica-clinic/
 
 ## 👨‍💻 Author
 
-**chaaruze**
+**John Charles Omagap**
+
+Project lead and lead programmer in a five-person capstone team.
 
 - GitHub: [@chaaruze](https://github.com/chaaruze)
 
@@ -182,8 +211,8 @@ stica-clinic/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+No license file is currently provided. The repository is retained for portfolio reference.
 
 ---
 
-<p align="center">Made with ❤️ for STI College Alabang</p>
+<p align="center">Academic capstone prototype retained for reference.</p>
